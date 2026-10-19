@@ -34,6 +34,14 @@ L'application est hébergée gratuitement sur Appwrite par Hilaila (procédure :
 3. Dans le Pi Browser, ouvrez l'application, appuyez sur **Connexion Pi**, puis sur **Administration** : vous voyez toutes les inscriptions, leur état et les recettes par offre.
 4. Chaque apprenant retrouve ses propres achats dans **Mes inscriptions**, avec une référence de paiement à vous indiquer par e-mail.
 
+## Étape 2 quater — La ferme-école dans la chaîne
+
+1. Dans l'application, ouvrez **Mon exploitation** et créez la fiche de la ferme-école de l'Institut.
+2. Ajoutez ses parcelles, puis un lot pour chaque production (miel, compost, maraîchage…).
+3. Enregistrez les étapes au fil de la production : semis, intrants biologiques, récolte.
+4. Chaque lot a un code et un code QR à coller sur l'emballage : l'acheteur voit l'origine et l'historique, sans connexion.
+5. Les étapes ne s'effacent pas : une erreur se corrige par une étape « Correction ».
+
 ## Étape 3 — Valider les contenus (à envoyer à Hilaila)
 
 Répondez « validé » ou envoyez vos corrections pour :

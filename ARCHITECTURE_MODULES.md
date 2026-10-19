@@ -46,7 +46,7 @@ L'application n'est ni un simple catalogue de formations ni une boutique agricol
 ## 4. Ordre de construction
 
 1. **Fait** : catalogue, paiement en Pi, Mes inscriptions, Administration.
-2. **Socle** : fiche d'exploitation, parcelles, lots et page publique de vérification d'un lot. Tout le reste s'y rattache.
+2. **Fait — socle** : fiche d'exploitation, parcelles, lots, étapes non modifiables, page publique `lot.html` avec code QR, formations du producteur affichées s'il l'accepte. Tout le reste s'y rattache.
 3. **BioStar Academy** : contenu des cours réservé aux inscrits, progression, attestation vérifiable reliée à l'exploitation.
 4. **BioSmart** : fiches d'orientation validées par le promoteur, puis assistant d'intelligence artificielle.
 5. **BioLab et BioImpact** : essais et actions rattachés aux parcelles.

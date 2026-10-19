@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import { createApi, parseAdminUsernames } from '../core/handler.js';
+import { TABLES, columnKeys, booleanKeys } from '../core/schema.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -35,16 +36,55 @@ const frameAncestors = env.FRAME_ANCESTORS || "'self' https://*.minepi.com https
 const dbPath = path.resolve(ROOT, env.DATABASE_PATH || './data/biostar.db');
 fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 const db = new DatabaseSync(dbPath);
-db.exec(`
-  PRAGMA journal_mode = WAL;
-  CREATE TABLE IF NOT EXISTS orders (
-    id TEXT PRIMARY KEY, username TEXT NOT NULL, product_id TEXT NOT NULL,
-    amount REAL NOT NULL, memo TEXT NOT NULL, payment_id TEXT UNIQUE,
-    txid TEXT, status TEXT NOT NULL, created_at TEXT NOT NULL
-  );
-`);
+db.exec('PRAGMA journal_mode = WAL;');
+// Tables créées à partir du schéma partagé (core/schema.js) ; une table existante n'est jamais modifiée.
+const sqlType = { string: 'TEXT', enum: 'TEXT', datetime: 'TEXT', float: 'REAL', boolean: 'INTEGER' };
+for (const [table, def] of Object.entries(TABLES)) {
+  const cols = def.columns.map((c) => `${c.body.key} ${sqlType[c.type]}${c.body.required ? ' NOT NULL' : ''}`);
+  db.exec(`CREATE TABLE IF NOT EXISTS ${table} (id TEXT PRIMARY KEY, ${cols.join(', ')})`);
+  for (const ix of def.indexes) {
+    db.exec(`CREATE ${ix.type === 'unique' ? 'UNIQUE ' : ''}INDEX IF NOT EXISTS ${table}_${ix.key} ON ${table} (${ix.columns.join(', ')})`);
+  }
+}
+const checkTable = (table) => { if (!TABLES[table]) throw new Error('Table inconnue : ' + table); };
+const toSql = (v) => (typeof v === 'boolean' ? (v ? 1 : 0) : v);
+function fromSql(table, row) {
+  if (!row) return null;
+  const out = { ...row };
+  for (const k of booleanKeys(table)) out[k] = Boolean(out[k]);
+  return out;
+}
+function whereClause(table, where) {
+  const keys = columnKeys(table);
+  const entries = Object.entries(where || {});
+  for (const [k] of entries) if (!keys.includes(k)) throw new Error('Filtre inconnu : ' + k);
+  return { sql: entries.length ? ' WHERE ' + entries.map(([k]) => `${k} = ?`).join(' AND ') : '', values: entries.map(([, v]) => toSql(v)) };
+}
 const store = {
   kind: 'sqlite',
+  async find(table, where = {}, limit = 200) {
+    checkTable(table);
+    const w = whereClause(table, where);
+    return db.prepare(`SELECT * FROM ${table}${w.sql} ORDER BY created_at DESC LIMIT ?`).all(...w.values, limit).map((r) => fromSql(table, r));
+  },
+  async get(table, id) { checkTable(table); return fromSql(table, db.prepare(`SELECT * FROM ${table} WHERE id = ?`).get(id)); },
+  async insert(table, row) {
+    checkTable(table);
+    const keys = ['id', ...columnKeys(table)].filter((k) => row[k] !== undefined && row[k] !== null);
+    try {
+      db.prepare(`INSERT INTO ${table} (${keys.join(', ')}) VALUES (${keys.map(() => '?').join(', ')})`).run(...keys.map((k) => toSql(row[k])));
+    } catch (e) {
+      if (/UNIQUE/.test(e.message)) { const err = new Error('Doublon'); err.duplicate = true; throw err; }
+      throw e;
+    }
+  },
+  async update(table, id, data) {
+    checkTable(table);
+    const keys = columnKeys(table).filter((k) => data[k] !== undefined);
+    if (!keys.length) return;
+    db.prepare(`UPDATE ${table} SET ${keys.map((k) => `${k} = ?`).join(', ')} WHERE id = ?`).run(...keys.map((k) => toSql(data[k])), id);
+  },
+  async count(table) { checkTable(table); return db.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get().n; },
   async getOrder(paymentId) { return db.prepare('SELECT * FROM orders WHERE payment_id = ?').get(paymentId); },
   async insertOrder(o) {
     db.prepare('INSERT INTO orders (id, username, product_id, amount, memo, payment_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')

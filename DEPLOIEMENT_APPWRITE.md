@@ -45,6 +45,11 @@ Une seule fonction Appwrite sert les pages, l'API Pi et la base de données. Ell
 3. Après le paiement : la section **Mes inscriptions** affiche l’inscription « Confirmée ». Avec le compte de M. ZOUGBA, la section **Administration** affiche les recettes.
 4. En cas d'erreur : onglet **Executions** de la fonction, pour lire les journaux.
 
+## 6. Après chaque nouvelle version
+
+1. Attendez que le déploiement soit **Ready** (onglet **Deployments**).
+2. Ouvrez une fois `https://bio-star-monde.fra.appwrite.run/api/setup` : il crée les tables ajoutées par la version (exploitations, parcelles, lots, étapes) sans toucher aux commandes. Si la réponse tarde, ouvrez-la une seconde fois.
+
 ## À savoir
 
 - Offre gratuite : un projet sans activité de développement dans la console pendant 7 jours est mis en pause. Il se réactive depuis la console. Avant le Mainnet, prévoyez l'offre Pro ou une visite régulière de la console.

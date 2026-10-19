@@ -63,6 +63,7 @@ Une seule fonction sert les pages et l’API sur le même domaine. Elle se redé
 3. Remplacer `SESSION_SECRET` par une valeur aléatoire forte avant tout déploiement.
 4. Lancer `npm start`, puis ouvrir `http://localhost:3000`.
 5. Pour tester la syntaxe du serveur : `npm run check`.
+6. Pour lancer les tests (paiements, espaces, exploitation, lots, traçabilité, fonction Appwrite) : `npm test`.
 
 Ne publiez jamais le fichier `.env`, les clés API, les mots de passe ou d’autres secrets.
 
@@ -102,6 +103,12 @@ Liste de contrôle avant soumission : [PI_APPROVAL_CHECKLIST.md](PI_APPROVAL_CHE
 - `POST /api/payments/incomplete` — reprise d’un paiement resté incomplet.
 - `POST /api/payments/cancel` — annulation côté application.
 - `POST /api/my-orders` — inscriptions du compte Pi connecté (espace « Mes inscriptions »).
+- `POST /api/farm` — fiche d’exploitation, parcelles, lots et étapes du compte Pi connecté.
+- `POST /api/farm/save` — création ou modification de la fiche d’exploitation.
+- `POST /api/plots/save` — création ou modification d’une parcelle.
+- `POST /api/lots/create` — création d’un lot et de son code `BSME-XXXXXXXX`.
+- `POST /api/lots/event` — ajout d’une étape à un lot (jamais modifiée ni effacée).
+- `GET /api/trace?code=BSME-XXXXXXXX` — traçabilité publique d’un lot, sans donnée de compte (page `lot.html`, code QR).
 - `POST /api/admin/orders` — toutes les inscriptions et les recettes, réservé aux comptes de `ADMIN_USERNAMES`.
 
 ## 6. Contact officiel

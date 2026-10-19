@@ -1,4 +1,5 @@
-const $ = (s) => document.querySelector(s);
+// Page d'accueil : catalogue, connexion Pi, paiements, Mes inscriptions et Administration.
+// Fonctions communes ($, api, el…) : common.js ; exploitation et lots : farm.js.
 let piUser = null;
 let piAccessToken = null;
 let piReady = false;
@@ -17,18 +18,6 @@ function toast(message) {
 }
 function status(message) { $('#status').textContent = message; }
 function networkLabel() { return (piConfig.network === 'mainnet' ? 'Mainnet' : 'Testnet') + (piConfig.sandbox ? ' (Sandbox)' : ''); }
-// Adresse de l'API, fixée dans config.js (vide : même domaine, fonction Appwrite ou serveur Node).
-const API_BASE = String(window.BSME_API_BASE || '').replace(/\/+$/, '');
-async function api(url, body) {
-  const response = await fetch(API_BASE + url, {
-    method: body ? 'POST' : 'GET',
-    headers: body ? { 'Content-Type': 'application/json' } : {},
-    body: body ? JSON.stringify(body) : undefined
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || 'Erreur serveur (' + response.status + ')');
-  return data;
-}
 function showProducts(products) {
   const root = $('#products');
   root.replaceChildren();
@@ -50,12 +39,6 @@ async function loadProducts() {
 }
 
 // --- Mes inscriptions et administration ---
-function el(tag, className, text) {
-  const e = document.createElement(tag);
-  if (className) e.className = className;
-  if (text !== undefined && text !== null) e.textContent = text;
-  return e;
-}
 function formatPi(n) { return Number(n).toLocaleString('fr-FR', { maximumFractionDigits: 7 }) + ' Pi'; }
 function formatDate(iso) {
   const d = new Date(iso);
@@ -98,6 +81,10 @@ function renderAdmin() {
     box.append(el('span', 'stat-value', String(value)), el('span', 'stat-label', label));
     stats.append(box);
   }
+  if (adminData.chain) {
+    const c = adminData.chain;
+    stats.append(el('p', 'stats-chain', 'Chaîne connectée : ' + c.farms + ' exploitation(s) · ' + c.plots + ' parcelle(s) · ' + c.lots + ' lot(s) tracé(s) · ' + c.events + ' étape(s)'));
+  }
   if (adminData.network !== 'mainnet') stats.append(el('p', 'stats-note', 'Testnet : montants en Pi de test, sans valeur.'));
   const perProduct = $('#admin-products');
   perProduct.replaceChildren();
@@ -122,10 +109,13 @@ async function loadAdmin() {
 function refreshSpaces() {
   if (!piUser) return;
   loadMine();
+  if (typeof loadFarm === 'function') loadFarm();
   if (piIsAdmin) loadAdmin();
 }
 function showSpaces() {
   $('#mes-inscriptions').hidden = false;
+  $('#exploitation').hidden = false;
+  $('#nav-farm').hidden = false;
   $('#nav-admin').hidden = !piIsAdmin;
   $('#administration').hidden = !piIsAdmin;
   refreshSpaces();
