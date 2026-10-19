@@ -41,11 +41,21 @@ db.exec(`
   );
 `);
 
-const products = [
-  { id: 'formation-sol-vivant', name: 'Formation : comprendre le sol vivant', category: 'Formation', amount: 0.1, currency: 'Pi', description: 'Contenu de démonstration à remplacer par la formation réelle.' },
-  { id: 'guide-agroecologie', name: 'Guide pratique d’agroécologie', category: 'Guide', amount: 0.05, currency: 'Pi', description: 'Produit de démonstration. Vérifiez le contenu avant toute vente.' },
-  { id: 'diagnostic-parcelle', name: 'Diagnostic initial de parcelle', category: 'Service', amount: 0.2, currency: 'Pi', description: 'Exemple de service à personnaliser selon vos capacités réelles.' }
-];
+// Catalogue : server/catalogue.json, validé par le promoteur. Le prix de référence d'un paiement est toujours celui-ci.
+const products = loadCatalogue(path.join(__dirname, 'catalogue.json'));
+function loadCatalogue(file) {
+  const items = JSON.parse(fs.readFileSync(file, 'utf8')).items;
+  if (!Array.isArray(items) || items.length === 0) throw new Error('Catalogue vide ou mal formé : ' + file);
+  const ids = new Set();
+  for (const p of items) {
+    if (typeof p.id !== 'string' || !/^[a-z0-9-]{3,64}$/.test(p.id) || ids.has(p.id)) throw new Error('Catalogue : identifiant invalide ou en double : ' + p.id);
+    if (typeof p.name !== 'string' || !p.name.trim() || p.name.length > 120) throw new Error('Catalogue : nom invalide pour ' + p.id);
+    if (typeof p.amount !== 'number' || !Number.isFinite(p.amount) || p.amount <= 0) throw new Error('Catalogue : montant invalide pour ' + p.id);
+    ids.add(p.id);
+    p.currency = 'Pi';
+  }
+  return items;
+}
 
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8', '.json': 'application/json; charset=utf-8' };
 

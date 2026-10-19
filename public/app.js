@@ -31,10 +31,11 @@ function showProducts(products) {
     const cat = document.createElement('div'); cat.className = 'category'; cat.textContent = p.category;
     const title = document.createElement('h3'); title.textContent = p.name;
     const desc = document.createElement('p'); desc.textContent = p.description;
-    const price = document.createElement('div'); price.className = 'price'; price.textContent = p.amount + ' Pi';
-    const btn = document.createElement('button'); btn.className = 'button'; btn.textContent = 'Acheter en Pi'; btn.type = 'button';
+    const meta = document.createElement('p'); meta.className = 'meta'; meta.textContent = [p.axis, p.duration, p.format].filter(Boolean).join(' · ');
+    const price = document.createElement('div'); price.className = 'price'; price.textContent = p.amount.toLocaleString('fr-FR') + ' Pi';
+    const btn = document.createElement('button'); btn.className = 'button'; btn.textContent = p.category === 'Service' ? 'Réserver en Pi' : 'S’inscrire en Pi'; btn.type = 'button';
     btn.addEventListener('click', () => buy(p, btn));
-    card.append(cat, title, desc, price, btn); root.append(card);
+    card.append(cat, title, desc, meta, price, btn); root.append(card);
   }
 }
 async function loadProducts() {
