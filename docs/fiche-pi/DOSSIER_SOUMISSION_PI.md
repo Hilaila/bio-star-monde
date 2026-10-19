@@ -19,7 +19,7 @@ L'approbation reste une décision de la Pi Core Team. Cochez d'abord [PI_APPROVA
 | Confidentialité | https://bio-star-monde.fra.appwrite.run/privacy.html |
 | Conditions | https://bio-star-monde.fra.appwrite.run/terms.html |
 | Authentification | Pi uniquement : cochez « Pi SDK Exclusive Authentication » |
-| Logo | `logo-1024.png` (1024 × 1024 px, PNG, 33 Ko) |
+| Logo | `logo-1024.png` : logo officiel de l'Institut fourni par le promoteur (1024 × 1024 px, PNG, 335 Ko) |
 | Captures | `1-accueil.png` à `5-attestation-verifiee.png` (1080 × 1920 px) |
 
 ## 2. Descriptions
@@ -56,7 +56,7 @@ L'approbation reste une décision de la Pi Core Team. Cochez d'abord [PI_APPROVA
 | --- | --- |
 | Application complète, interface professionnelle | Catalogue, BioStar Academy, BioSmart, exploitation et lots, BioImpact, contact, administration. 2 suites de tests automatisés (`npm test`), serveur Node et fonction Appwrite. |
 | KYC du développeur | Validé pour le compte Pi de M. ZOUGBA NATHANAËL (confirmé le 19 octobre 2026). |
-| Pas d'usage abusif de la marque Pi | Nom sans « Pi ». Domaine `bio-star-monde…`, qui ne commence pas par « pi ». Logo propre à l'Institut (BS, vert et or). |
+| Pas d'usage abusif de la marque Pi | Nom sans « Pi ». Domaine `bio-star-monde…`, qui ne commence pas par « pi ». Logo officiel de l'Institut (BioStarMondeEden · IIMIBAE), sans élément de la marque Pi. |
 | Connexion Pi uniquement | `Pi.authenticate(['username', 'payments'])`. Le jeton est vérifié par le serveur auprès de `https://api.minepi.com/v2/me` à chaque appel. Ni e-mail, ni mot de passe, ni autre fournisseur. |
 | Transactions en Pi uniquement | Prix en Pi, `Pi.createPayment`, approbation et finalisation par le serveur avec la clé `PI_API_KEY`. Le prix vient du catalogue serveur ; montant, compte et transaction sont contrôlés auprès de Pi. Paiements incomplets repris. |
 | Pas de redirection vers des sites extérieurs | Aucun achat ne se finalise hors de l'application. Le contact se fait par le formulaire interne « Écrire à l'Institut ». L'adresse e-mail n'apparaît en lien que dans les pages légales, pour l'exercice des droits. |
@@ -78,7 +78,7 @@ L'approbation reste une décision de la Pi Core Team. Cochez d'abord [PI_APPROVA
 
 | Fichier | Contenu |
 | --- | --- |
-| `logo-1024.png` | Logo de l'Institut, 1024 × 1024 px |
+| `logo-1024.png` | Logo officiel de l'Institut (BioStarMondeEden · IIMIBAE), 1024 × 1024 px |
 | `1-accueil.png` | Accueil, connecté avec Pi |
 | `2-academie.png` | Leçon d'une formation et progression |
 | `3-biosmart-diagnostic.png` | Diagnostic par symptômes et traitement biologique |
