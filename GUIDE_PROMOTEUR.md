@@ -23,22 +23,15 @@ Sans KYC validé, l'application ne pourra pas être référencée.
 3. Dans la page de l'application, récupérez la **clé API**.
 4. Transmettez cette clé à Hilaila de façon sûre : de vive voix ou par message chiffré, puis supprimez le message.
 
-## Étape 2 bis — Créer l'hébergement gratuit Supabase (à votre nom)
+## Étape 2 bis — Hébergement
 
-La base de données et le serveur de l'application seront dans **votre** compte Supabase : vous en restez propriétaire.
-
-1. Sur **supabase.com**, créez un compte avec votre adresse officielle (zoubgaefils@gmail.com).
-2. Créez une **organisation** nommée « Bio Star Monde Éden », offre **Free** (gratuite).
-3. Créez un **projet** nommé `bio-star-monde-eden`, région **West EU (Paris)**. Choisissez un mot de passe de base de données fort et gardez-le pour vous.
-4. Dans les réglages de l'organisation, rubrique **Team**, invitez l'adresse du compte Supabase de Hilaila avec le rôle **Developer** (et non Owner ou Administrator).
-5. Dans le projet, menu **Edge Functions**, puis **Secrets**, ajoutez le secret `PI_API_KEY` avec la clé API de l'application Testnet copiée depuis develop.pi. Seul le propriétaire peut enregistrer ce secret.
-6. Communiquez à Hilaila l'adresse du projet (elle ressemble à `https://xxxx.supabase.co`).
+L'application est hébergée gratuitement sur Appwrite par Hilaila (procédure : [DEPLOIEMENT_APPWRITE.md](DEPLOIEMENT_APPWRITE.md)). Votre seule action : recopier dans le champ **Production URL** de l'application Testnet l'adresse que Hilaila vous communiquera (elle se termine par `.appwrite.run`). Le transfert de l'hébergement à votre nom est prévu dans l'accord.
 
 ## Étape 3 — Valider les contenus (à envoyer à Hilaila)
 
 Répondez « validé » ou envoyez vos corrections pour :
 
-1. **Le catalogue** (`supabase/functions/api/catalogue.json`) : 9 formations et 3 services tirés de votre présentation. Vérifiez les intitulés, les durées et les modalités.
+1. **Le catalogue** (`core/catalogue.json`) : 9 formations et 3 services tirés de votre présentation. Vérifiez les intitulés, les durées et les modalités.
 2. **Vos prix réels en FCFA**, pour chaque offre. Ils serviront à calculer les prix en Pi du Mainnet.
 3. **Les conditions d'utilisation et de vente** (`public/terms.html`), en particulier la règle en cas d'erreur de paiement.
 4. **La politique de confidentialité** (`public/privacy.html`).

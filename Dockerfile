@@ -2,7 +2,7 @@ FROM node:22-alpine
 WORKDIR /app
 COPY package.json ./
 COPY server ./server
-COPY supabase/functions/api ./supabase/functions/api
+COPY core ./core
 COPY public ./public
 RUN mkdir -p /data && chown node:node /data
 ENV NODE_ENV=production PORT=3000 DATABASE_PATH=/data/biostar.db

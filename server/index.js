@@ -1,11 +1,11 @@
 // Serveur Node de Bio Star Monde Éden : développement local et hébergement Docker.
-// La logique de l'API est partagée avec la fonction Supabase de production (supabase/functions/api/handler.js).
+// La logique de l'API est partagée avec la fonction Appwrite de production (core/handler.js).
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
-import { createApi } from '../supabase/functions/api/handler.js';
+import { createApi } from '../core/handler.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -54,8 +54,8 @@ const store = {
   async cancelOrder(paymentId) { db.prepare("UPDATE orders SET status = 'cancelled' WHERE payment_id = ? AND status != 'completed'").run(paymentId); }
 };
 
-// Catalogue : supabase/functions/api/catalogue.json, validé par le promoteur.
-const catalogue = JSON.parse(fs.readFileSync(path.join(ROOT, 'supabase/functions/api/catalogue.json'), 'utf8')).items;
+// Catalogue : core/catalogue.json, validé par le promoteur.
+const catalogue = JSON.parse(fs.readFileSync(path.join(ROOT, 'core/catalogue.json'), 'utf8')).items;
 const api = createApi({
   catalogue, store,
   piApiKey: env.PI_API_KEY || '',
@@ -89,11 +89,6 @@ async function sendResponse(res, response) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, appUrl);
-    // Sur ce serveur, l'interface appelle l'API sur le même domaine.
-    if (req.method === 'GET' && url.pathname === '/config.js') {
-      res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store', ...securityHeaders });
-      return res.end("window.BSME_API_BASE = '';\n");
-    }
     const init = { method: req.method, headers: Object.entries(req.headers).filter(([, v]) => typeof v === 'string') };
     if (req.method !== 'GET' && req.method !== 'HEAD') init.body = await readRaw(req);
     const response = await api(new Request(url, init));

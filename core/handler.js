@@ -1,5 +1,5 @@
 // Cœur de l'API Bio Star Monde Éden.
-// Utilisé tel quel par la fonction Supabase (Deno, production) et par le serveur Node (local, Docker).
+// Utilisé tel quel par la fonction Appwrite (production) et par le serveur Node (local, Docker).
 // Uniquement des API web standard : Request, Response, fetch, crypto.randomUUID.
 
 const PI_API = 'https://api.minepi.com/v2';
@@ -26,7 +26,7 @@ export function createApi({ catalogue, store, piApiKey = '', sandbox = false, ne
   const doFetch = (...args) => (fetchImpl || globalThis.fetch)(...args);
   const products = validateCatalogue(catalogue);
   const getProduct = (id) => products.find((p) => p.id === id);
-  const validPaymentId = (id) => typeof id === 'string' && id.length > 0 && id.length <= 256;
+  const validPaymentId = (id) => typeof id === 'string' && id.length > 0 && id.length <= 128;
   const isCancelled = (payment) => Boolean(payment.status?.cancelled || payment.status?.user_cancelled);
 
   function json(status, body) {
@@ -171,7 +171,7 @@ export function createApi({ catalogue, store, piApiKey = '', sandbox = false, ne
   // Renvoie une Response, ou null si la requête ne concerne pas l'API (fichier statique côté Node).
   return async function handle(request) {
     const url = new URL(request.url);
-    // Sur Supabase, le chemin commence par le nom de la fonction (/api/...) ; on retire un éventuel /functions/v1.
+    // On retire un éventuel préfixe /functions/v1 (hébergements qui le transmettent).
     const pathname = url.pathname.replace(/^\/functions\/v1(?=\/)/, '');
     try {
       if (request.method === 'GET' && (pathname === '/healthz' || pathname === '/api/health')) {
