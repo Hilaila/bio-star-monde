@@ -25,7 +25,7 @@ Le projet entend favoriser la transmission des connaissances, l’innovation agr
 
 **Pays d’implantation envisagé :** Burkina Faso.
 
-Le dépôt GitHub constitue un espace technique de développement et de suivi du code. Son hébergement sous le compte GitHub Hilaila ne détermine pas, à lui seul, la propriété juridique du projet ni les droits de propriété intellectuelle associés. Comptes, clés, règles de sécurité et points de l’accord : voir [GOUVERNANCE.md](GOUVERNANCE.md). Actions réservées au promoteur sur Pi et validations attendues : voir [GUIDE_PROMOTEUR.md](GUIDE_PROMOTEUR.md).
+Le dépôt GitHub constitue un espace technique de développement et de suivi du code. Son hébergement sous le compte GitHub Hilaila ne détermine pas, à lui seul, la propriété juridique du projet ni les droits de propriété intellectuelle associés. Comptes, clés, règles de sécurité et points de l’accord : voir [GOUVERNANCE.md](GOUVERNANCE.md). Actions réservées au promoteur sur Pi et validations attendues : voir [GUIDE_PROMOTEUR.md](GUIDE_PROMOTEUR.md). Modules et liens entre les activités : voir [ARCHITECTURE_MODULES.md](ARCHITECTURE_MODULES.md).
 
 ## 3. Vision
 
