@@ -42,9 +42,19 @@ Contribuer à l’émergence d’un pôle d’excellence agrobiologique associan
 
 ## 5. Application numérique — version de démarrage
 
-Cette base comprend une interface web responsive en français, un serveur Node.js, un catalogue de 12 formations et services tirés de la présentation de l’Institut (`server/catalogue.json`), une base SQLite, une politique de confidentialité et des conditions d’utilisation et de vente, ainsi que l’intégration Pi (connexion, paiements, paiements incomplets). Le catalogue, les prix et les pages légales sont des propositions à valider par le promoteur ; les montants sont en Pi de test.
+Cette base comprend une interface web responsive en français, un serveur Node.js, un catalogue de 12 formations et services tirés de la présentation de l’Institut (`supabase/functions/api/catalogue.json`), une base SQLite, une politique de confidentialité et des conditions d’utilisation et de vente, ainsi que l’intégration Pi (connexion, paiements, paiements incomplets). Le catalogue, les prix et les pages légales sont des propositions à valider par le promoteur ; les montants sont en Pi de test.
 
 **Cette version n’est pas prête pour une mise en production sans configuration et vérifications supplémentaires.** Il manque notamment une véritable interface d’administration avec rôles sécurisés, la validation juridique des pages de confidentialité et de conditions, les données réelles de l’organisation et les essais Pi sur l’environnement autorisé. Aucune fonctionnalité non implémentée ou non vérifiée ne doit être présentée comme opérationnelle.
+
+### Architecture
+
+| Partie | Production (gratuite) | Local ou Docker |
+| --- | --- | --- |
+| Pages (`public/`) | Vercel, fichiers statiques (`vercel.json`) | Serveur Node (`server/index.js`) |
+| API Pi et paiements | Fonction Supabase `api` (`supabase/functions/api/`) | Serveur Node, même code (`handler.js`) |
+| Base de données | Postgres Supabase (`supabase/migrations/`) | SQLite (`data/biostar.db`) |
+
+`public/config.js` indique aux pages l’adresse de l’API : la fonction Supabase en production, le même domaine en local. La fonction est déployée avec `verify_jwt = false`, car chaque appel est authentifié par le jeton Pi, vérifié auprès de l’API Pi. Le secret `PI_API_KEY` est saisi par le propriétaire du projet Supabase.
 
 ### Prérequis et lancement local
 
@@ -62,9 +72,9 @@ Ne publiez jamais le fichier `.env`, les clés API, les mots de passe ou d’aut
 | --- | --- | --- |
 | 1 | KYC validé, portefeuille Mainnet migré, Developer Portal ouvert (`develop.pi` dans le Pi Browser). | M. ZOUGBA NATHANAËL |
 | 2 | Enregistrer l’application **Testnet**, déclarer les URL, transmettre la clé API Testnet. | M. ZOUGBA NATHANAËL, avec Hilaila |
-| 3 | Déployer le serveur en HTTPS, renseigner `.env`, tester dans le Sandbox (`PI_SANDBOX=true`) puis dans le Pi Browser (`PI_SANDBOX=false`). | Hilaila |
+| 3 | Créer le projet Supabase à son nom et y enregistrer le secret `PI_API_KEY` ; déployer la base, la fonction et les pages, puis tester dans le Pi Browser. | M. ZOUGBA NATHANAËL (compte), Hilaila (déploiement) |
 | 4 | Valider connexion, paiement, annulation et paiement incomplet. | Hilaila |
-| 5 | Valider le catalogue (`server/catalogue.json`), les prix en FCFA, les conditions et la politique de confidentialité. | M. ZOUGBA NATHANAËL ; intégration par Hilaila |
+| 5 | Valider le catalogue (`supabase/functions/api/catalogue.json`), les prix en FCFA, les conditions et la politique de confidentialité. | M. ZOUGBA NATHANAËL ; intégration par Hilaila |
 | 6 | Créer l’application **Mainnet**, vérifier le domaine (`PI_VALIDATION_KEY`), connecter le portefeuille, générer une nouvelle clé API, passer `PI_NETWORK=mainnet`. | M. ZOUGBA NATHANAËL ; serveur par Hilaila |
 | 7 | Tester un vrai paiement de petit montant, puis demander le référencement. | Les deux |
 
@@ -82,7 +92,7 @@ Liste de contrôle avant soumission : [PI_APPROVAL_CHECKLIST.md](PI_APPROVAL_CHE
 
 - `GET /healthz` — état technique.
 - `GET /api/config` — réglages publics du SDK Pi (Sandbox, réseau).
-- `GET /api/products` — catalogue (`server/catalogue.json`).
+- `GET /api/products` — catalogue (`supabase/functions/api/catalogue.json`).
 - `GET /api/me` — état de connexion indicatif.
 - `POST /api/pi-auth` — validation du jeton Pi côté serveur.
 - `POST /api/payments/approve` — approbation d’un paiement.

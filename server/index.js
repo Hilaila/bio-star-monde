@@ -1,9 +1,11 @@
+// Serveur Node de Bio Star Monde Éden : développement local et hébergement Docker.
+// La logique de l'API est partagée avec la fonction Supabase de production (supabase/functions/api/handler.js).
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
+import { createApi } from '../supabase/functions/api/handler.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -29,6 +31,7 @@ const piSandbox = env.PI_SANDBOX === 'true';
 const piNetwork = env.PI_NETWORK === 'mainnet' ? 'mainnet' : 'testnet';
 // Le Sandbox et le Pi Browser affichent l'application dans un cadre : 'none' la bloquerait.
 const frameAncestors = env.FRAME_ANCESTORS || "'self' https://*.minepi.com https://*.pinet.com";
+
 const dbPath = path.resolve(ROOT, env.DATABASE_PATH || './data/biostar.db');
 fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 const db = new DatabaseSync(dbPath);
@@ -40,219 +43,79 @@ db.exec(`
     txid TEXT, status TEXT NOT NULL, created_at TEXT NOT NULL
   );
 `);
+const store = {
+  kind: 'sqlite',
+  async getOrder(paymentId) { return db.prepare('SELECT * FROM orders WHERE payment_id = ?').get(paymentId); },
+  async insertOrder(o) {
+    db.prepare('INSERT INTO orders (id, username, product_id, amount, memo, payment_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(o.id, o.username, o.product_id, o.amount, o.memo, o.payment_id, o.status, o.created_at);
+  },
+  async completeOrder(paymentId, txid) { db.prepare("UPDATE orders SET txid = ?, status = 'completed' WHERE payment_id = ?").run(txid, paymentId); },
+  async cancelOrder(paymentId) { db.prepare("UPDATE orders SET status = 'cancelled' WHERE payment_id = ? AND status != 'completed'").run(paymentId); }
+};
 
-// Catalogue : server/catalogue.json, validé par le promoteur. Le prix de référence d'un paiement est toujours celui-ci.
-const products = loadCatalogue(path.join(__dirname, 'catalogue.json'));
-function loadCatalogue(file) {
-  const items = JSON.parse(fs.readFileSync(file, 'utf8')).items;
-  if (!Array.isArray(items) || items.length === 0) throw new Error('Catalogue vide ou mal formé : ' + file);
-  const ids = new Set();
-  for (const p of items) {
-    if (typeof p.id !== 'string' || !/^[a-z0-9-]{3,64}$/.test(p.id) || ids.has(p.id)) throw new Error('Catalogue : identifiant invalide ou en double : ' + p.id);
-    if (typeof p.name !== 'string' || !p.name.trim() || p.name.length > 120) throw new Error('Catalogue : nom invalide pour ' + p.id);
-    if (typeof p.amount !== 'number' || !Number.isFinite(p.amount) || p.amount <= 0) throw new Error('Catalogue : montant invalide pour ' + p.id);
-    ids.add(p.id);
-    p.currency = 'Pi';
-  }
-  return items;
-}
+// Catalogue : supabase/functions/api/catalogue.json, validé par le promoteur.
+const catalogue = JSON.parse(fs.readFileSync(path.join(ROOT, 'supabase/functions/api/catalogue.json'), 'utf8')).items;
+const api = createApi({
+  catalogue, store,
+  piApiKey: env.PI_API_KEY || '',
+  sandbox: piSandbox, network: piNetwork,
+  validationKey: env.PI_VALIDATION_KEY || '',
+  exposeErrors: !isProd
+});
 
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8', '.json': 'application/json; charset=utf-8' };
+const securityHeaders = { 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin' };
+const csp = "default-src 'self'; script-src 'self' https://sdk.minepi.com https://*.minepi.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.minepi.com https://*.minepi.com; frame-src https://*.minepi.com; base-uri 'self'; form-action 'self'; frame-ancestors " + frameAncestors;
 
-function send(res, status, body, type = 'application/json; charset=utf-8', extra = {}) {
-  res.writeHead(status, {
-    'Content-Type': type,
-    'X-Content-Type-Options': 'nosniff',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'X-Frame-Options': 'DENY',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-    'Cache-Control': 'no-store',
-    ...extra
-  });
-  res.end(typeof body === 'string' ? body : JSON.stringify(body));
-}
-function json(res, status, body) { send(res, status, body); }
-function readBody(req, limit = 32_000) {
+function readRaw(req, limit = 32_000) {
   return new Promise((resolve, reject) => {
-    let data = '';
-    req.on('data', chunk => {
-      data += chunk;
-      if (data.length > limit) { reject(new Error('Requête trop volumineuse')); req.destroy(); }
+    const chunks = []; let size = 0;
+    req.on('data', (chunk) => {
+      size += chunk.length;
+      if (size > limit) { reject(Object.assign(new Error('Requête trop volumineuse'), { status: 413 })); req.destroy(); return; }
+      chunks.push(chunk);
     });
-    req.on('end', () => {
-      try { resolve(data ? JSON.parse(data) : {}); }
-      catch { reject(new Error('JSON invalide')); }
-    });
+    req.on('end', () => resolve(Buffer.concat(chunks)));
     req.on('error', reject);
   });
 }
-function requirePiConfig() {
-  if (!env.PI_API_KEY) throw new Error('PI_API_KEY non configurée côté serveur');
-}
-async function piApi(endpoint, options = {}) {
-  requirePiConfig();
-  const response = await fetch('https://api.minepi.com/v2' + endpoint, {
-    ...options,
-    headers: { Authorization: 'Key ' + env.PI_API_KEY, 'Content-Type': 'application/json', ...(options.headers || {}) }
-  });
-  const text = await response.text();
-  let data;
-  try { data = text ? JSON.parse(text) : {}; } catch { data = { raw: text.slice(0, 500) }; }
-  if (!response.ok) {
-    const err = new Error('API Pi a répondu HTTP ' + response.status);
-    err.status = response.status;
-    throw err;
-  }
-  return data;
-}
-async function piMe(accessToken) {
-  if (typeof accessToken !== 'string' || accessToken.length < 10 || accessToken.length > 4096) throw new Error('Jeton Pi manquant ou invalide');
-  const response = await fetch('https://api.minepi.com/v2/me', { headers: { Authorization: 'Bearer ' + accessToken } });
-  if (!response.ok) throw new Error('Vérification du compte Pi impossible (HTTP ' + response.status + ')');
-  const me = await response.json();
-  if (!me.uid || !me.username) throw new Error('Réponse du compte Pi incomplète');
-  return me;
-}
-function getProduct(id) { return products.find(p => p.id === id); }
-function publicProduct(p) { return { ...p }; }
-function validPaymentId(id) { return typeof id === 'string' && id.length > 0 && id.length <= 256; }
-function getOrder(paymentId) { return db.prepare('SELECT * FROM orders WHERE payment_id = ?').get(paymentId); }
-function isCancelled(payment) { return Boolean(payment.status?.cancelled || payment.status?.user_cancelled); }
-function markCancelled(paymentId) { db.prepare("UPDATE orders SET status = 'cancelled' WHERE payment_id = ? AND status != 'completed'").run(paymentId); }
-
-// Finalise une commande approuvée. Le txid de référence est celui enregistré par l'API Pi ;
-// celui du navigateur ne sert que si l'API ne l'a pas encore renvoyé (l'API Pi le vérifie à la finalisation).
-async function finalizeOrder(order, payment, paymentId, clientTxid) {
-  const piTxid = payment.transaction?.txid;
-  if (piTxid && clientTxid && piTxid !== clientTxid) return { ok: false, httpStatus: 409, error: 'La transaction ne correspond pas à celle enregistrée par Pi.' };
-  const txid = piTxid || (typeof clientTxid === 'string' && clientTxid.length <= 256 ? clientTxid : '');
-  if (!txid) return { ok: false, httpStatus: 409, error: 'Transaction absente : le paiement n’a pas encore été signé.' };
-  if (Number(payment.amount) !== order.amount) return { ok: false, httpStatus: 400, error: 'Montant inattendu.' };
-  if (!payment.status?.developer_completed) {
-    await piApi('/payments/' + encodeURIComponent(paymentId) + '/complete', { method: 'POST', body: JSON.stringify({ txid }) });
-  }
-  db.prepare('UPDATE orders SET txid = ?, status = ? WHERE payment_id = ?').run(txid, 'completed', paymentId);
-  return { ok: true };
-}
-
-async function handleApi(req, res, url) {
-  if (req.method === 'GET' && url.pathname === '/api/config') return json(res, 200, { sandbox: piSandbox, network: piNetwork });
-  if (req.method === 'GET' && url.pathname === '/api/products') return json(res, 200, { products: products.map(publicProduct) });
-  if (req.method === 'GET' && url.pathname === '/api/me') return json(res, 200, { authenticated: false, message: 'Connectez-vous avec Pi Browser.' });
-
-  if (req.method === 'POST' && url.pathname === '/api/pi-auth') {
-    const body = await readBody(req);
-    const me = await piMe(body.accessToken);
-    return json(res, 200, { ok: true, uid: me.uid, username: me.username });
-  }
-
-  if (req.method === 'POST' && url.pathname === '/api/payments/approve') {
-    const body = await readBody(req);
-    const me = await piMe(body.accessToken);
-    const product = getProduct(body.productId);
-    if (!product) return json(res, 400, { error: 'Produit inconnu.' });
-    if (!validPaymentId(body.paymentId)) return json(res, 400, { error: 'Identifiant de paiement invalide.' });
-    const existing = getOrder(body.paymentId);
-    if (existing) {
-      if (existing.username !== me.username || existing.product_id !== product.id) return json(res, 409, { error: 'Paiement déjà associé à une autre commande.' });
-      return json(res, 200, { ok: true, status: existing.status });
-    }
-    const payment = await piApi('/payments/' + encodeURIComponent(body.paymentId));
-    if (payment.user_uid !== me.uid) return json(res, 403, { error: 'Le paiement ne correspond pas au compte Pi connecté.' });
-    if (Number(payment.amount) !== product.amount) return json(res, 400, { error: 'Le montant du paiement ne correspond pas au prix enregistré côté serveur.' });
-    if (isCancelled(payment)) return json(res, 409, { error: 'Ce paiement a été annulé.' });
-    if (payment.status?.developer_approved || payment.status?.developer_completed) return json(res, 409, { error: 'Ce paiement a déjà été traité.' });
-    await piApi('/payments/' + encodeURIComponent(body.paymentId) + '/approve', { method: 'POST', body: '{}' });
-    const orderId = crypto.randomUUID();
-    db.prepare('INSERT INTO orders (id, username, product_id, amount, memo, payment_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-      .run(orderId, me.username, product.id, product.amount, product.name, body.paymentId, 'approved', new Date().toISOString());
-    return json(res, 200, { ok: true, orderId, status: 'approved' });
-  }
-
-  if (req.method === 'POST' && url.pathname === '/api/payments/complete') {
-    const body = await readBody(req);
-    const me = await piMe(body.accessToken);
-    if (!validPaymentId(body.paymentId) || !body.txid || typeof body.txid !== 'string') return json(res, 400, { error: 'Identifiant de paiement ou transaction manquant.' });
-    const order = getOrder(body.paymentId);
-    if (!order || order.username !== me.username) return json(res, 404, { error: 'Commande approuvée introuvable pour ce compte.' });
-    if (order.status === 'completed') return json(res, 200, { ok: true, status: 'completed' });
-    const payment = await piApi('/payments/' + encodeURIComponent(body.paymentId));
-    if (payment.user_uid !== me.uid) return json(res, 403, { error: 'Le paiement ne correspond pas au compte Pi connecté.' });
-    if (isCancelled(payment)) { markCancelled(body.paymentId); return json(res, 409, { error: 'Ce paiement a été annulé.' }); }
-    const result = await finalizeOrder(order, payment, body.paymentId, body.txid);
-    if (!result.ok) return json(res, result.httpStatus, { error: result.error });
-    return json(res, 200, { ok: true, status: 'completed', message: 'Paiement confirmé par l’API Pi. Livrez le produit après vérification.' });
-  }
-
-  // Paiement signé mais non finalisé (fermeture de l'application, coupure réseau…).
-  // Signalé par Pi.authenticate ; à traiter, sinon l'utilisateur ne peut plus payer.
-  if (req.method === 'POST' && url.pathname === '/api/payments/incomplete') {
-    const body = await readBody(req);
-    const me = await piMe(body.accessToken);
-    if (!validPaymentId(body.paymentId)) return json(res, 400, { error: 'Identifiant de paiement invalide.' });
-    const payment = await piApi('/payments/' + encodeURIComponent(body.paymentId));
-    if (payment.user_uid !== me.uid) return json(res, 403, { error: 'Le paiement ne correspond pas au compte Pi connecté.' });
-    let order = getOrder(body.paymentId);
-    if (order && order.username !== me.username) return json(res, 403, { error: 'Cette commande appartient à un autre compte.' });
-    if (isCancelled(payment)) { markCancelled(body.paymentId); return json(res, 200, { ok: true, status: 'cancelled' }); }
-    if (order?.status === 'completed') return json(res, 200, { ok: true, status: 'completed' });
-    if (!payment.transaction?.txid && !body.txid) return json(res, 200, { ok: true, status: 'pending', message: 'Paiement non signé : il sera annulé au prochain paiement.' });
-    if (!order) {
-      // Paiement approuvé auprès de Pi mais commande absente de la base (arrêt du serveur, par exemple).
-      const product = getProduct(payment.metadata?.productId);
-      if (!payment.status?.developer_approved || !product || Number(payment.amount) !== product.amount) {
-        console.error(new Date().toISOString(), 'Paiement incomplet sans commande correspondante', body.paymentId);
-        return json(res, 409, { error: 'Paiement incomplet sans commande correspondante : vérification manuelle nécessaire.' });
-      }
-      db.prepare('INSERT INTO orders (id, username, product_id, amount, memo, payment_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-        .run(crypto.randomUUID(), me.username, product.id, product.amount, product.name, body.paymentId, 'approved', new Date().toISOString());
-      order = getOrder(body.paymentId);
-    }
-    const result = await finalizeOrder(order, payment, body.paymentId, body.txid);
-    if (!result.ok) return json(res, result.httpStatus, { error: result.error });
-    return json(res, 200, { ok: true, status: 'completed', message: 'Paiement précédent finalisé.' });
-  }
-
-  if (req.method === 'POST' && url.pathname === '/api/payments/cancel') {
-    const body = await readBody(req);
-    const me = await piMe(body.accessToken);
-    if (!body.paymentId || typeof body.paymentId !== 'string') return json(res, 400, { error: 'Identifiant de paiement manquant.' });
-    const order = getOrder(body.paymentId);
-    if (order && order.username !== me.username) return json(res, 403, { error: 'Cette commande appartient à un autre compte.' });
-    if (order) markCancelled(body.paymentId);
-    return json(res, 200, { ok: true, status: 'cancelled' });
-  }
-  return json(res, 404, { error: 'Route API inconnue.' });
+async function sendResponse(res, response) {
+  const headers = { ...Object.fromEntries(response.headers), ...securityHeaders };
+  res.writeHead(response.status, headers);
+  res.end(Buffer.from(await response.arrayBuffer()));
 }
 
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, appUrl);
-    if (req.method === 'GET' && (url.pathname === '/healthz' || url.pathname === '/api/health')) {
-      return json(res, 200, { ok: true, app: 'Bio Star Monde Éden', network: piNetwork, environment: piSandbox ? 'sandbox-configured' : 'non-sandbox', piApiKeyConfigured: Boolean(env.PI_API_KEY), database: 'sqlite' });
+    // Sur ce serveur, l'interface appelle l'API sur le même domaine.
+    if (req.method === 'GET' && url.pathname === '/config.js') {
+      res.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store', ...securityHeaders });
+      return res.end("window.BSME_API_BASE = '';\n");
     }
-    if (req.method === 'GET' && url.pathname === '/validation-key.txt') {
-      if (!env.PI_VALIDATION_KEY) return send(res, 404, 'Clé de validation non configurée.\n', 'text/plain; charset=utf-8');
-      return send(res, 200, env.PI_VALIDATION_KEY + '\n', 'text/plain; charset=utf-8');
-    }
-    if (url.pathname.startsWith('/api/')) return await handleApi(req, res, url);
-    if (req.method !== 'GET' && req.method !== 'HEAD') return json(res, 405, { error: 'Méthode non autorisée.' }, 'application/json; charset=utf-8', { Allow: 'GET, HEAD' });
+    const init = { method: req.method, headers: Object.entries(req.headers).filter(([, v]) => typeof v === 'string') };
+    if (req.method !== 'GET' && req.method !== 'HEAD') init.body = await readRaw(req);
+    const response = await api(new Request(url, init));
+    if (response) return await sendResponse(res, response);
 
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      res.writeHead(405, { 'Content-Type': 'application/json; charset=utf-8', Allow: 'GET, HEAD', ...securityHeaders });
+      return res.end(JSON.stringify({ error: 'Méthode non autorisée.' }));
+    }
     const rel = url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname).replace(/^\/+/, '');
     const file = path.resolve(ROOT, 'public', rel);
-    if (!file.startsWith(path.resolve(ROOT, 'public') + path.sep)) return send(res, 403, 'Interdit');
+    if (!file.startsWith(path.resolve(ROOT, 'public') + path.sep)) { res.writeHead(403); return res.end('Interdit'); }
     let stat;
-    try { stat = fs.statSync(file); } catch { return send(res, 404, 'Page introuvable', 'text/plain; charset=utf-8'); }
-    if (!stat.isFile()) return send(res, 404, 'Page introuvable', 'text/plain; charset=utf-8');
-    const ext = path.extname(file);
-    const headers = isProd ? { 'Content-Security-Policy': "default-src 'self'; script-src 'self' https://sdk.minepi.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.minepi.com https://sdk.minepi.com; base-uri 'self'; form-action 'self'; frame-ancestors " + frameAncestors } : {};
-    res.writeHead(200, { 'Content-Type': mime[ext] || 'application/octet-stream', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin', ...headers });
+    try { stat = fs.statSync(file); } catch { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('Page introuvable'); }
+    if (!stat.isFile()) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('Page introuvable'); }
+    res.writeHead(200, { 'Content-Type': mime[path.extname(file)] || 'application/octet-stream', ...securityHeaders, ...(isProd ? { 'Content-Security-Policy': csp } : {}) });
     if (req.method === 'HEAD') return res.end();
     fs.createReadStream(file).pipe(res);
   } catch (err) {
-    const status = err.status || (err.message?.includes('non configurée') ? 503 : 400);
     console.error(new Date().toISOString(), req.method, req.url, err.message);
-    return json(res, status, { error: isProd ? 'Requête impossible. Vérifiez la configuration et les journaux serveur.' : err.message });
+    if (!res.headersSent) res.writeHead(err.status || 400, { 'Content-Type': 'application/json; charset=utf-8', ...securityHeaders });
+    res.end(JSON.stringify({ error: isProd ? 'Requête impossible.' : err.message }));
   }
 });
 

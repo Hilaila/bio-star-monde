@@ -20,6 +20,8 @@ M. ZOUGBA NATHANAËL porte le projet et en détient les droits. Hilaila en assur
 | Compte Pi Developer Portal | M. ZOUGBA NATHANAËL | M. ZOUGBA NATHANAËL | Enregistre les applications Testnet et Mainnet. KYC validé et portefeuille Mainnet migré obligatoires avant le lancement. |
 | Portefeuille de l'application (Mainnet) | M. ZOUGBA NATHANAËL | — | Reçoit les paiements en Pi. Sa phrase secrète (passphrase) n'est jamais communiquée à personne, développeur compris. |
 | Clés API Pi (Testnet, puis Mainnet) | Générées par M. ZOUGBA NATHANAËL | Hilaila, côté serveur | Transmises par un canal sécurisé, stockées uniquement dans la variable `PI_API_KEY` du serveur. Régénérées en cas de fuite ou de fin de collaboration. |
+| Projet Supabase (base de données et fonction serveur) | M. ZOUGBA NATHANAËL, propriétaire | Hilaila, rôle Developer | M. ZOUGBA saisit lui-même le secret `PI_API_KEY` ; Hilaila déploie la base et la fonction. |
+| Hébergement des pages (Vercel) | Hilaila | Hilaila | Ne contient aucun secret. Transfert à prévoir dans l'accord. |
 | Clé de validation du domaine | Fournie par le Developer Portal | Hilaila | Variable `PI_VALIDATION_KEY`, servie sur `/validation-key.txt`. |
 | Dépôt GitHub | Hilaila | Hilaila | Gestion technique. Accès en lecture recommandé pour le promoteur. |
 | Hébergement et nom de domaine | À fixer dans l'accord | Hilaila | Le nom de domaine gagne à être enregistré au nom du promoteur ou de l'Institut, propriétaire du projet. |

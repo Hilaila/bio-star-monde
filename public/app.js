@@ -13,8 +13,10 @@ function toast(message) {
 }
 function status(message) { $('#status').textContent = message; }
 function networkLabel() { return (piConfig.network === 'mainnet' ? 'Mainnet' : 'Testnet') + (piConfig.sandbox ? ' (Sandbox)' : ''); }
+// Adresse de l'API : même domaine (serveur Node) ou fonction Supabase (version publiée), fixée dans config.js.
+const API_BASE = String(window.BSME_API_BASE || '').replace(/\/+$/, '');
 async function api(url, body) {
-  const response = await fetch(url, {
+  const response = await fetch(API_BASE + url, {
     method: body ? 'POST' : 'GET',
     headers: body ? { 'Content-Type': 'application/json' } : {},
     body: body ? JSON.stringify(body) : undefined
