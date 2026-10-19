@@ -46,6 +46,7 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
   }
 
   // Étape 1 : table et colonnes manquantes (première installation, nouvelle version ou installation interrompue).
+  // Une colonne restée en échec est supprimée, puis recréée au passage suivant.
   async function createMissing(table) {
     let current;
     try { current = await call('GET', tablePath(table)); } catch (e) {
@@ -54,42 +55,53 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
       await call('POST', `/tablesdb/${DATABASE_ID}/tables`, { tableId: table, name: TABLES[table].name, permissions: [], rowSecurity: false });
       current = await call('GET', tablePath(table));
     }
-    const existing = new Set((current.columns || []).map((c) => c.key));
+    const existing = new Map((current.columns || []).map((c) => [c.key, c]));
     for (const c of TABLES[table].columns) {
-      if (!existing.has(c.body.key)) await call('POST', `${tablePath(table)}/columns/${c.type}`, c.body);
+      const found = existing.get(c.body.key);
+      if (found && (found.status === 'failed' || found.status === 'stuck')) {
+        await call('DELETE', `${tablePath(table)}/columns/${c.body.key}`);
+      } else if (!found) {
+        await call('POST', `${tablePath(table)}/columns/${c.type}`, c.body);
+      }
     }
   }
 
-  // Étape 2 : Appwrite crée les colonnes en arrière-plan ; on attend qu'elles soient disponibles avant les index.
-  async function finish(table) {
-    for (let attempt = 0; attempt < 20; attempt++) {
-      const current = await call('GET', tablePath(table));
-      const columns = current.columns || [];
-      const failed = columns.find((c) => c.status === 'failed' || c.status === 'stuck');
-      if (failed) throw new Error(`Colonne Appwrite en échec : ${table}.${failed.key}`);
-      if (TABLES[table].columns.every((c) => columns.some((x) => x.key === c.body.key && x.status === 'available'))) {
-        const indexes = new Set((current.indexes || []).map((x) => x.key));
-        for (const ix of TABLES[table].indexes) if (!indexes.has(ix.key)) await call('POST', `${tablePath(table)}/indexes`, ix);
-        ready.add(table);
-        return;
+  // Étape 2 : Appwrite crée les colonnes en arrière-plan ; les index ne sont créés qu'une fois toutes les colonnes disponibles.
+  async function checkTable(table) {
+    const current = await call('GET', tablePath(table));
+    const columns = current.columns || [];
+    if (!TABLES[table].columns.every((c) => columns.some((x) => x.key === c.body.key && x.status === 'available'))) return false;
+    const indexes = new Map((current.indexes || []).map((x) => [x.key, x]));
+    for (const ix of TABLES[table].indexes) if (!indexes.has(ix.key)) await call('POST', `${tablePath(table)}/indexes`, ix);
+    if (TABLES[table].indexes.some((ix) => indexes.has(ix.key) && indexes.get(ix.key).status && indexes.get(ix.key).status !== 'available')) return false;
+    ready.add(table);
+    return true;
+  }
+
+  // Prépare des tables dans un temps limité, pour rester sous le délai d'exécution de la fonction.
+  async function prepareTables(tables, budgetMs) {
+    const deadline = Date.now() + budgetMs;
+    let pending = tables.filter((t) => !ready.has(t));
+    while (pending.length) {
+      for (const t of pending) {
+        await createMissing(t);
+        await checkTable(t);
       }
+      pending = pending.filter((t) => !ready.has(t));
+      if (!pending.length || Date.now() + waitMs > deadline) break;
       await pause(waitMs);
     }
-    throw new Error(`La table Appwrite « ${table} » est en cours de création : réessayez dans quelques secondes.`);
+    return { ready: pending.length === 0, pending };
   }
 
   async function ensureTable(table) {
     if (ready.has(table)) return;
-    await createMissing(table);
-    await finish(table);
+    const result = await prepareTables([table], 12000);
+    if (!result.ready) throw new Error(`La table Appwrite « ${table} » est en cours de création : réessayez dans quelques secondes.`);
   }
 
-  // Toutes les tables : d'abord toutes les créations, puis une seule attente.
-  async function prepare() {
-    const tables = Object.keys(TABLES).filter((t) => !ready.has(t));
-    for (const t of tables) await createMissing(t);
-    for (const t of tables) await finish(t);
-  }
+  // Toutes les tables (adresse /api/setup) : renvoie { ready, pending } sans dépasser le budget de temps.
+  const prepare = ({ budgetMs = 10000 } = {}) => prepareTables(Object.keys(TABLES), budgetMs);
 
   function fromRow(table, row) {
     if (!row) return null;

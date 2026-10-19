@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createApi, parseAdminUsernames } from '../core/handler.js';
 import { createAppwriteStore } from './store.js';
+import { TABLES } from '../core/schema.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC = path.resolve(here, '../public');
@@ -37,14 +38,16 @@ export default async ({ req, res, log, error }) => {
     log: (...parts) => error(parts.join(' '))
   });
 
-  // Préparation de la base (à ouvrir une fois après le déploiement) : crée la base, la table, les colonnes et les index.
+  // Préparation de la base (à ouvrir après chaque déploiement) : crée la base, les tables, les colonnes et les index.
+  // Réponse toujours lisible (HTTP 200) : ok, tables en attente ou message d'erreur d'Appwrite (sans clé ni secret).
   if (req.method === 'GET' && req.path === '/api/setup') {
     try {
-      await store.prepare();
-      return res.json({ ok: true, message: 'Base prête : biostar / orders.' }, 200, SECURITY);
+      const result = await store.prepare({ budgetMs: 10000 });
+      if (result.ready) return res.json({ ok: true, message: 'Base prête : biostar (' + Object.keys(TABLES).join(', ') + ').' }, 200, { ...SECURITY, 'Cache-Control': 'no-store' });
+      return res.json({ ok: false, pending: result.pending, message: 'Création en cours : rouvrez cette adresse dans 30 secondes.' }, 200, { ...SECURITY, 'Cache-Control': 'no-store' });
     } catch (e) {
       error('Préparation de la base : ' + e.message);
-      return res.json({ ok: false, error: 'Préparation impossible. Consultez les journaux de la fonction (portées, délai).' }, 500, SECURITY);
+      return res.json({ ok: false, error: e.message }, 200, { ...SECURITY, 'Cache-Control': 'no-store' });
     }
   }
 

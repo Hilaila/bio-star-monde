@@ -36,6 +36,7 @@ function appwrite(url, opts) {
       assert.ok(!(body.required && body.default !== undefined), 'colonne obligatoire avec valeur par défaut refusée par Appwrite');
       t.columns.push({ ...body, type: x[1], status: 'processing' }); return reply(202, {});
     }
+    if (m === 'DELETE' && (x = rest.match(/^\/columns\/(\w+)$/))) { t.columns = t.columns.filter((c) => c.key !== x[1]); return new Response(null, { status: 204 }); }
     if (m === 'POST' && rest === '/indexes') {
       assert.ok(t.columns.every((c) => c.status === 'available'), 'index créé avant la disponibilité des colonnes');
       for (const col of body.columns) assert.ok(t.columns.some((c) => c.key === col), 'index sur colonne inconnue ' + col);
@@ -199,4 +200,22 @@ const ordersBefore = orders().length; before = structure();
 r = await run('GET', '/api/setup'); assert.equal(r.json.ok, true, JSON.stringify(r));
 assert.equal(orders().length, ordersBefore); assert.equal(structure() - before, 4 + 31 + 5, 'tables, colonnes et index nouveaux uniquement');
 ok('mise à jour : 4 tables nouvelles créées, commandes conservées');
+
+// Colonne restée en échec dans Appwrite : supprimée puis recréée par /api/setup.
+resetSchemaCache();
+db.tables.get('farms').columns.find((c) => c.key === 'region').status = 'failed';
+r = await run('GET', '/api/setup');
+assert.equal(r.status, 200); assert.equal(r.json.ok, true, JSON.stringify(r.json));
+assert.ok(db.calls.includes('DELETE /tablesdb/biostar/tables/farms/columns/region'));
+assert.equal(db.tables.get('farms').columns.find((c) => c.key === 'region').status, 'available');
+ok('colonne en échec réparée automatiquement');
+
+// Erreur d'Appwrite : message lisible renvoyé par /api/setup (sans clé).
+resetSchemaCache();
+const savedFetch = globalThis.fetch;
+globalThis.fetch = async (url, opts = {}) => (String(url).startsWith(ENDPOINT) ? reply(401, { message: 'The current user is not authorized to perform the requested action.' }) : savedFetch(url, opts));
+r = await run('GET', '/api/setup');
+globalThis.fetch = savedFetch;
+assert.equal(r.status, 200); assert.equal(r.json.ok, false); assert.match(r.json.error, /HTTP 401 The current user is not authorized/); assert.equal(r.body.includes('dyn-key'), false);
+ok('erreur d’Appwrite lisible sur /api/setup, sans la clé');
 console.log('Tous les tests Appwrite sont passés');
