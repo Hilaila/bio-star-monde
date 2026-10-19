@@ -1,12 +1,10 @@
-BIO STAR MONDE ÉDEN
+# BIO STAR MONDE ÉDEN
 
-Institut International Moderne Innovant Biologique d’Agriculture et d’Élevage
+### Institut International Moderne Innovant Biologique d’Agriculture et d’Élevage
 
-Devise : Former, Innover, Produire et Commercialiser pour un Monde Agro-Biologique Durable.
+**Devise :** Former, Innover, Produire et Commercialiser pour un Monde Agro-Biologique Durable.
 
----
-
-1. Présentation du projet
+## 1. Présentation du projet
 
 Bio Star Monde Éden est un projet consacré à la promotion de l’agrobiologie, de l’agriculture durable, de l’élevage responsable et de la valorisation des ressources naturelles.
 
@@ -14,19 +12,26 @@ Son ambition est de contribuer à la sécurité alimentaire, à la protection de
 
 Le projet entend favoriser la transmission des connaissances, l’innovation agricole, l’entrepreneuriat rural et la mise en relation des acteurs du secteur agrobiologique.
 
-2. Promoteur du projet
+## 2. Organisation du projet
 
-- Promoteur : M. ZOUGBA NATHANAËL
-- E-mail officiel : zoubgaefils@gmail.com
-- Pays d’implantation envisagé : Burkina Faso
+| Élément | Responsable |
+| --- | --- |
+| Promoteur de Bio Star Monde Éden | M. ZOUGBA NATHANAËL |
+| Propriété du projet et droits associés | M. ZOUGBA NATHANAËL, selon l’accord entre les parties |
+| Compte Pi Developer Portal | M. ZOUGBA NATHANAËL, promoteur enregistré |
+| Dépôt GitHub et gestion technique | Hilaila |
+| Développement et maintenance | Hilaila, selon l’accord entre les parties |
+| Contact officiel | [zoubgaefils@gmail.com](mailto:zoubgaefils@gmail.com) |
 
-M. ZOUGBA NATHANAËL est identifié comme promoteur de Bio Star Monde Éden. Les responsabilités juridiques, les droits sur les créations et les modalités de gestion technique sont à préciser dans les documents convenus entre les parties concernées.
+**Pays d’implantation envisagé :** Burkina Faso.
 
-3. Vision
+Le dépôt GitHub constitue un espace technique de développement et de suivi du code. Son hébergement sous le compte GitHub Hilaila ne détermine pas, à lui seul, la propriété juridique du projet ni les droits de propriété intellectuelle associés. Comptes, clés, règles de sécurité et points de l’accord : voir [GOUVERNANCE.md](GOUVERNANCE.md).
+
+## 3. Vision
 
 Contribuer à l’émergence d’un pôle d’excellence agrobiologique associant formation, innovation, production, élevage et commercialisation dans une démarche respectueuse de la nature.
 
-4. Missions et objectifs
+## 4. Missions et objectifs
 
 - Promouvoir les pratiques agrobiologiques et agricoles durables.
 - Encourager la formation et le partage des connaissances.
@@ -35,34 +40,64 @@ Contribuer à l’émergence d’un pôle d’excellence agrobiologique associan
 - Favoriser l’entrepreneuriat agricole et les partenariats.
 - Soutenir la commercialisation responsable des produits, lorsque les services correspondants seront opérationnels.
 
-5. Application numérique
+## 5. Application numérique — version de démarrage
 
-Le projet prévoit le développement d’une application numérique destinée à faciliter l’accès à l’information, la présentation des activités, la formation et, selon les modules développés, les échanges entre les acteurs du monde agrobiologique.
+Cette base comprend une interface web responsive en français, un serveur Node.js, un catalogue d’offres de démonstration, une base SQLite, des pages modèles de confidentialité et de conditions, ainsi que l’intégration Pi (connexion, paiements, paiements incomplets). Les offres du catalogue sont des exemples et ne constituent pas des produits commerciaux validés.
 
-Les fonctionnalités en démonstration seront clairement distinguées des services réellement opérationnels. Toute intégration à l’écosystème Pi fera l’objet de tests techniques et devra respecter les exigences applicables de la plateforme.
+**Cette version n’est pas prête pour une mise en production sans configuration et vérifications supplémentaires.** Il manque notamment une véritable interface d’administration avec rôles sécurisés, la validation juridique des pages de confidentialité et de conditions, les données réelles de l’organisation et les essais Pi sur l’environnement autorisé. Aucune fonctionnalité non implémentée ou non vérifiée ne doit être présentée comme opérationnelle.
 
-6. Équipe et responsabilités
+### Prérequis et lancement local
 
-- Promoteur du projet : M. ZOUGBA NATHANAËL.
-- Développement et gestion technique du dépôt GitHub : Hilaila.
-- Collaboration : selon les accords conclus entre les parties.
+1. Node.js **22.13 ou ultérieur**.
+2. Copier `.env.example` vers `.env`.
+3. Remplacer `SESSION_SECRET` par une valeur aléatoire forte avant tout déploiement.
+4. Lancer `npm start`, puis ouvrir `http://localhost:3000`.
+5. Pour tester la syntaxe du serveur : `npm run check`.
 
-Le dépôt GitHub constitue un espace technique de développement et de suivi du code. Son hébergement sous le compte GitHub Hilaila ne détermine pas, à lui seul, la propriété juridique du projet ni les droits de propriété intellectuelle associés.
+Ne publiez jamais le fichier `.env`, les clés API, les mots de passe ou d’autres secrets.
 
-7. État du développement
+### Mise en service sur Pi Network
 
-Le projet numérique est en cours de développement. Les fonctionnalités, les intégrations externes et les services destinés au public devront être testés avant toute déclaration de disponibilité en production.
+| Étape | Action | Responsable |
+| --- | --- | --- |
+| 1 | KYC validé, portefeuille Mainnet migré, Developer Portal ouvert (`develop.pi` dans le Pi Browser). | M. ZOUGBA NATHANAËL |
+| 2 | Enregistrer l’application **Testnet**, déclarer les URL, transmettre la clé API Testnet. | M. ZOUGBA NATHANAËL, avec Hilaila |
+| 3 | Déployer le serveur en HTTPS, renseigner `.env`, tester dans le Sandbox (`PI_SANDBOX=true`) puis dans le Pi Browser (`PI_SANDBOX=false`). | Hilaila |
+| 4 | Valider connexion, paiement, annulation et paiement incomplet. | Hilaila |
+| 5 | Remplacer le catalogue de démonstration et les pages modèles par les contenus réels. | M. ZOUGBA NATHANAËL ; intégration par Hilaila |
+| 6 | Créer l’application **Mainnet**, vérifier le domaine (`PI_VALIDATION_KEY`), connecter le portefeuille, générer une nouvelle clé API, passer `PI_NETWORK=mainnet`. | M. ZOUGBA NATHANAËL ; serveur par Hilaila |
+| 7 | Tester un vrai paiement de petit montant, puis demander le référencement. | Les deux |
 
-Aucune fonctionnalité non implémentée ou non vérifiée ne doit être présentée comme opérationnelle.
+Variables Pi du fichier `.env` :
 
-8. Contact officiel
+- `PI_API_KEY` : clé API serveur de l’application (Testnet, puis Mainnet).
+- `PI_SANDBOX` : `true` uniquement pour tester dans le Sandbox sur ordinateur ; `false` dans le Pi Browser.
+- `PI_NETWORK` : `testnet` ou `mainnet` (affichage et état technique).
+- `PI_VALIDATION_KEY` : clé de vérification du domaine fournie par le Developer Portal.
+- `FRAME_ANCESTORS` : origines autorisées à afficher l’application dans un cadre (Sandbox et Pi Browser). Valeur par défaut : `'self' https://*.minepi.com https://*.pinet.com`.
+
+Liste de contrôle avant soumission : [PI_APPROVAL_CHECKLIST.md](PI_APPROVAL_CHECKLIST.md). Cette base ne garantit pas l’approbation de Pi.
+
+### Endpoints
+
+- `GET /healthz` — état technique.
+- `GET /api/config` — réglages publics du SDK Pi (Sandbox, réseau).
+- `GET /api/products` — catalogue de démonstration.
+- `GET /api/me` — état de connexion indicatif.
+- `POST /api/pi-auth` — validation du jeton Pi côté serveur.
+- `POST /api/payments/approve` — approbation d’un paiement.
+- `POST /api/payments/complete` — finalisation d’un paiement.
+- `POST /api/payments/incomplete` — reprise d’un paiement resté incomplet.
+- `POST /api/payments/cancel` — annulation côté application.
+
+## 6. Contact officiel
 
 Pour toute information concernant Bio Star Monde Éden :
 
-M. ZOUGBA NATHANAËL
-E-mail : zoubgaefils@gmail.com
+**M. ZOUGBA NATHANAËL**, promoteur — [zoubgaefils@gmail.com](mailto:zoubgaefils@gmail.com)
+
+Développement et maintenance : Hilaila.
 
 ---
 
-Bio Star Monde Éden
-Former, Innover, Produire et Commercialiser pour un Monde Agro-Biologique Durable.
+*Bio Star Monde Éden — Former, Innover, Produire et Commercialiser pour un Monde Agro-Biologique Durable.*
