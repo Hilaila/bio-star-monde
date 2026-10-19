@@ -14,7 +14,11 @@
 <body>
 <header class="topbar">
   <a class="brand" href="/" aria-label="Bio Star Monde Éden, accueil"><span class="mark">BS</span><span>Bio Star Monde Éden<small>AGROÉCOLOGIE · FORMATION · TERRE</small></span></a>
-  <button id="connect" class="button secondary">Connexion Pi</button>
+  <nav class="topnav" aria-label="Espaces">
+    <a id="nav-mine" href="#mes-inscriptions">Mes inscriptions</a>
+    <a id="nav-admin" href="#administration" hidden>Administration</a>
+  </nav>
+  <button id="connect" class="button secondary" type="button">Connexion Pi</button>
 </header>
 <main>
   <section class="hero">
@@ -30,6 +34,20 @@
   <section id="catalogue" class="catalogue">
     <div class="section-head"><div><p class="eyebrow">CATALOGUE</p><h2>Formations et services</h2></div><span class="pill">Propositions à valider · Testnet</span></div>
     <div id="products" class="cards"><p>Chargement du catalogue…</p></div>
+  </section>
+  <section id="mes-inscriptions" class="space" hidden>
+    <div class="section-head"><div><p class="eyebrow">MON ESPACE</p><h2>Mes inscriptions</h2></div><button id="refresh-mine" class="button secondary" type="button">Actualiser</button></div>
+    <p class="hint">Après confirmation, écrivez à l’Institut en indiquant la référence du paiement : il vous communique les dates, le lieu ou le lien de la session.</p>
+    <div id="my-orders" class="orders"></div>
+  </section>
+  <section id="administration" class="space admin" hidden>
+    <div class="section-head"><div><p class="eyebrow">RÉSERVÉ AU PROMOTEUR</p><h2>Administration</h2></div>
+      <div class="tools"><label for="admin-filter" class="sr-only">Filtrer</label><select id="admin-filter"><option value="all">Toutes</option><option value="completed">Confirmées</option><option value="approved">En attente</option><option value="cancelled">Annulées</option></select><button id="refresh-admin" class="button secondary" type="button">Actualiser</button></div></div>
+    <div id="admin-summary" class="stats"></div>
+    <h3 class="subhead">Recettes par offre</h3>
+    <div id="admin-products" class="orders compact"></div>
+    <h3 class="subhead">Toutes les inscriptions</h3>
+    <div id="admin-orders" class="orders"></div>
   </section>
   <section class="notice"><strong>À savoir</strong><p>Pendant la phase de test, les montants sont exprimés en Pi de test, sans valeur. Les formations, durées et prix définitifs seront fixés par le promoteur avant l’ouverture sur le Mainnet. Les produits de la ferme-école seront proposés lorsqu’elle produira.</p></section>
   <section class="about">

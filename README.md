@@ -84,6 +84,7 @@ Variables Pi du fichier `.env` :
 - `PI_SANDBOX` : `true` uniquement pour tester dans le Sandbox sur ordinateur ; `false` dans le Pi Browser.
 - `PI_NETWORK` : `testnet` ou `mainnet` (affichage et état technique).
 - `PI_VALIDATION_KEY` : clé de vérification du domaine fournie par le Developer Portal.
+- `ADMIN_USERNAMES` : noms d’utilisateur Pi autorisés à ouvrir l’espace Administration, séparés par des virgules (sans @). Vide : espace désactivé.
 - `FRAME_ANCESTORS` : origines autorisées à afficher l’application dans un cadre (Sandbox et Pi Browser). Valeur par défaut : `'self' https://*.minepi.com https://*.pinet.com`.
 
 Liste de contrôle avant soumission : [PI_APPROVAL_CHECKLIST.md](PI_APPROVAL_CHECKLIST.md). Cette base ne garantit pas l’approbation de Pi.
@@ -100,6 +101,8 @@ Liste de contrôle avant soumission : [PI_APPROVAL_CHECKLIST.md](PI_APPROVAL_CHE
 - `POST /api/payments/complete` — finalisation d’un paiement.
 - `POST /api/payments/incomplete` — reprise d’un paiement resté incomplet.
 - `POST /api/payments/cancel` — annulation côté application.
+- `POST /api/my-orders` — inscriptions du compte Pi connecté (espace « Mes inscriptions »).
+- `POST /api/admin/orders` — toutes les inscriptions et les recettes, réservé aux comptes de `ADMIN_USERNAMES`.
 
 ## 6. Contact officiel
 

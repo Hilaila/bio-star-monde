@@ -21,11 +21,32 @@ export function validateCatalogue(items) {
   });
 }
 
-// store : { kind, getOrder(paymentId), insertOrder(order), completeOrder(paymentId, txid), cancelOrder(paymentId) } — méthodes asynchrones.
-export function createApi({ catalogue, store, piApiKey = '', sandbox = false, network = 'testnet', validationKey = '', exposeErrors = false, fetchImpl, log = (...a) => console.error(...a) }) {
+// Liste des comptes Pi autorisés à l'administration, par exemple « zougba, hilaila » (sans @, casse ignorée).
+export function parseAdminUsernames(value) {
+  return String(value || '').split(/[\s,;]+/).map((u) => u.replace(/^@/, '').trim().toLowerCase()).filter(Boolean);
+}
+
+const round = (n) => Math.round(n * 1e7) / 1e7;
+
+// store : { kind, getOrder(paymentId), insertOrder(order), completeOrder(paymentId, txid), cancelOrder(paymentId),
+//           listOrders({ username?, limit }) } — méthodes asynchrones ; listOrders renvoie les plus récentes d'abord.
+export function createApi({ catalogue, store, piApiKey = '', sandbox = false, network = 'testnet', validationKey = '', adminUsernames = [], exposeErrors = false, fetchImpl, log = (...a) => console.error(...a) }) {
   const doFetch = (...args) => (fetchImpl || globalThis.fetch)(...args);
   const products = validateCatalogue(catalogue);
   const getProduct = (id) => products.find((p) => p.id === id);
+  const admins = new Set(adminUsernames.map((u) => String(u).toLowerCase()));
+  const isAdmin = (me) => admins.has(String(me.username).toLowerCase());
+  // Vue d'une commande renvoyée au navigateur ; le nom d'utilisateur n'est ajouté que pour l'administration.
+  function orderView(o, withUser) {
+    const product = getProduct(o.product_id);
+    const view = {
+      paymentId: o.payment_id, productId: o.product_id, name: product?.name || o.memo, category: product?.category || '',
+      amount: Number(o.amount), status: o.status, createdAt: o.created_at, txid: o.txid || null
+    };
+    if (withUser) view.username = o.username;
+    return view;
+  }
+  const byDateDesc = (a, b) => String(b.created_at).localeCompare(String(a.created_at));
   const validPaymentId = (id) => typeof id === 'string' && id.length > 0 && id.length <= 128;
   const isCancelled = (payment) => Boolean(payment.status?.cancelled || payment.status?.user_cancelled);
 
@@ -89,7 +110,38 @@ export function createApi({ catalogue, store, piApiKey = '', sandbox = false, ne
     'POST /api/pi-auth': async (request) => {
       const body = await readBody(request);
       const me = await piMe(body.accessToken);
-      return json(200, { ok: true, uid: me.uid, username: me.username });
+      return json(200, { ok: true, uid: me.uid, username: me.username, isAdmin: isAdmin(me) });
+    },
+
+    // Espace apprenant : les inscriptions du compte Pi connecté, et seulement les siennes.
+    'POST /api/my-orders': async (request) => {
+      const body = await readBody(request);
+      const me = await piMe(body.accessToken);
+      const orders = (await store.listOrders({ username: me.username, limit: 200 })).filter((o) => o.username === me.username).sort(byDateDesc);
+      return json(200, { ok: true, username: me.username, orders: orders.map((o) => orderView(o, false)) });
+    },
+
+    // Administration : toutes les inscriptions et les totaux, réservés aux comptes listés dans ADMIN_USERNAMES.
+    'POST /api/admin/orders': async (request) => {
+      const body = await readBody(request);
+      const me = await piMe(body.accessToken);
+      if (!isAdmin(me)) return json(403, { error: 'Espace réservé au promoteur.' });
+      const orders = (await store.listOrders({ limit: 2000 })).sort(byDateDesc);
+      const summary = { orders: orders.length, completed: 0, pending: 0, cancelled: 0, totalPi: 0, byProduct: [] };
+      const perProduct = new Map();
+      for (const o of orders) {
+        if (o.status === 'completed') {
+          summary.completed++;
+          summary.totalPi = round(summary.totalPi + Number(o.amount));
+          const line = perProduct.get(o.product_id) || { productId: o.product_id, name: getProduct(o.product_id)?.name || o.memo, completed: 0, totalPi: 0 };
+          line.completed++;
+          line.totalPi = round(line.totalPi + Number(o.amount));
+          perProduct.set(o.product_id, line);
+        } else if (o.status === 'cancelled') summary.cancelled++;
+        else summary.pending++;
+      }
+      summary.byProduct = [...perProduct.values()].sort((a, b) => b.totalPi - a.totalPi);
+      return json(200, { ok: true, network, summary, orders: orders.map((o) => orderView(o, true)) });
     },
 
     'POST /api/payments/approve': async (request) => {
@@ -175,7 +227,7 @@ export function createApi({ catalogue, store, piApiKey = '', sandbox = false, ne
     const pathname = url.pathname.replace(/^\/functions\/v1(?=\/)/, '');
     try {
       if (request.method === 'GET' && (pathname === '/healthz' || pathname === '/api/health')) {
-        return json(200, { ok: true, app: 'Bio Star Monde Éden', network, environment: sandbox ? 'sandbox-configured' : 'non-sandbox', piApiKeyConfigured: Boolean(piApiKey), database: store.kind });
+        return json(200, { ok: true, app: 'Bio Star Monde Éden', network, environment: sandbox ? 'sandbox-configured' : 'non-sandbox', piApiKeyConfigured: Boolean(piApiKey), adminConfigured: admins.size > 0, database: store.kind });
       }
       if (request.method === 'GET' && pathname === '/validation-key.txt') {
         return new Response((validationKey || 'Clé de validation non configurée.') + '\n', { status: validationKey ? 200 : 404, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });

@@ -4,6 +4,10 @@ let piAccessToken = null;
 let piReady = false;
 let piConfig = { sandbox: true, network: 'testnet' };
 let pendingIncomplete = null;
+let piIsAdmin = false;
+let adminData = null;
+const CONTACT_EMAIL = 'zoubgaefils@gmail.com';
+const STATUS_LABELS = { completed: 'Confirmée', approved: 'En attente', cancelled: 'Annulée' };
 
 function toast(message) {
   const el = $('#toast');
@@ -45,6 +49,88 @@ async function loadProducts() {
   catch (e) { $('#products').textContent = 'Le catalogue est temporairement indisponible. ' + e.message; }
 }
 
+// --- Mes inscriptions et administration ---
+function el(tag, className, text) {
+  const e = document.createElement(tag);
+  if (className) e.className = className;
+  if (text !== undefined && text !== null) e.textContent = text;
+  return e;
+}
+function formatPi(n) { return Number(n).toLocaleString('fr-FR', { maximumFractionDigits: 7 }) + ' Pi'; }
+function formatDate(iso) {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? '' : d.toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
+}
+function orderCard(o, admin) {
+  const card = el('article', 'order');
+  const top = el('div', 'order-top');
+  top.append(el('strong', null, o.name), el('span', 'badge ' + o.status, STATUS_LABELS[o.status] || o.status));
+  card.append(top, el('p', 'order-meta', [formatDate(o.createdAt), formatPi(o.amount), admin ? '@' + o.username : null].filter(Boolean).join(' · ')));
+  card.append(el('p', 'order-ref', 'Référence : ' + o.paymentId));
+  if (admin && o.txid) card.append(el('p', 'order-ref', 'Transaction : ' + o.txid));
+  if (!admin && o.status === 'completed') {
+    const link = el('a', 'order-link', 'Écrire à l’Institut');
+    link.href = 'mailto:' + CONTACT_EMAIL
+      + '?subject=' + encodeURIComponent('Inscription : ' + o.name)
+      + '&body=' + encodeURIComponent('Compte Pi : @' + piUser.username + '\nOffre : ' + o.name + '\nRéférence du paiement : ' + o.paymentId + '\n');
+    card.append(link);
+  }
+  if (!admin && o.status === 'approved') card.append(el('p', 'order-note', 'Paiement en cours : il sera finalisé à votre prochaine connexion.'));
+  return card;
+}
+async function loadMine() {
+  if (!piAccessToken) return;
+  const root = $('#my-orders');
+  try {
+    const data = await api('/api/my-orders', { accessToken: piAccessToken });
+    root.replaceChildren();
+    if (!data.orders.length) root.append(el('p', 'empty', 'Aucune inscription pour le moment. Choisissez une offre dans le catalogue.'));
+    for (const o of data.orders) root.append(orderCard(o, false));
+  } catch (e) { root.replaceChildren(el('p', 'empty', 'Inscriptions indisponibles : ' + e.message)); }
+}
+function renderAdmin() {
+  if (!adminData) return;
+  const s = adminData.summary;
+  const stats = $('#admin-summary');
+  stats.replaceChildren();
+  for (const [label, value] of [['Recettes confirmées', formatPi(s.totalPi)], ['Inscriptions confirmées', s.completed], ['En attente', s.pending], ['Annulées', s.cancelled]]) {
+    const box = el('div', 'stat');
+    box.append(el('span', 'stat-value', String(value)), el('span', 'stat-label', label));
+    stats.append(box);
+  }
+  if (adminData.network !== 'mainnet') stats.append(el('p', 'stats-note', 'Testnet : montants en Pi de test, sans valeur.'));
+  const perProduct = $('#admin-products');
+  perProduct.replaceChildren();
+  if (!s.byProduct.length) perProduct.append(el('p', 'empty', 'Aucune recette confirmée.'));
+  for (const p of s.byProduct) {
+    const row = el('div', 'order row');
+    row.append(el('strong', null, p.name), el('span', 'row-value', p.completed + (p.completed > 1 ? ' inscriptions' : ' inscription') + ' · ' + formatPi(p.totalPi)));
+    perProduct.append(row);
+  }
+  const filter = $('#admin-filter').value;
+  const list = adminData.orders.filter((o) => filter === 'all' || o.status === filter);
+  const root = $('#admin-orders');
+  root.replaceChildren();
+  if (!list.length) root.append(el('p', 'empty', 'Aucune inscription.'));
+  for (const o of list) root.append(orderCard(o, true));
+}
+async function loadAdmin() {
+  if (!piAccessToken || !piIsAdmin) return;
+  try { adminData = await api('/api/admin/orders', { accessToken: piAccessToken }); renderAdmin(); }
+  catch (e) { $('#admin-orders').replaceChildren(el('p', 'empty', 'Administration indisponible : ' + e.message)); }
+}
+function refreshSpaces() {
+  if (!piUser) return;
+  loadMine();
+  if (piIsAdmin) loadAdmin();
+}
+function showSpaces() {
+  $('#mes-inscriptions').hidden = false;
+  $('#nav-admin').hidden = !piIsAdmin;
+  $('#administration').hidden = !piIsAdmin;
+  refreshSpaces();
+}
+
 // Le SDK est initialisé une seule fois, au chargement, avec le réglage Sandbox fourni par le serveur.
 async function initPi() {
   try { piConfig = await api('/api/config'); } catch { /* réglages par défaut : Testnet, Sandbox */ }
@@ -69,6 +155,7 @@ async function processIncomplete() {
       paymentId: payment.identifier, txid: payment.transaction?.txid, accessToken: piAccessToken
     });
     if (result.status === 'completed') toast(result.message || 'Paiement précédent finalisé.');
+    if (result.status === 'completed' || result.status === 'cancelled') refreshSpaces();
   } catch (e) { toast('Paiement précédent à vérifier : ' + e.message); }
 }
 
@@ -86,11 +173,13 @@ async function connectPi() {
     });
     piUser = auth.user;
     piAccessToken = auth.accessToken;
-    await api('/api/pi-auth', { accessToken: piAccessToken });
+    const verified = await api('/api/pi-auth', { accessToken: piAccessToken });
+    piIsAdmin = Boolean(verified.isAdmin);
     status('Connecté avec Pi : @' + piUser.username + ' — ' + networkLabel());
     $('#connect').textContent = '@' + piUser.username;
     toast('Connexion Pi vérifiée côté serveur.');
     await processIncomplete();
+    showSpaces();
   } catch (e) {
     toast('Connexion Pi impossible : ' + e.message);
     status('Connexion Pi non établie.');
@@ -116,12 +205,15 @@ async function buy(product, button) {
       onReadyForServerCompletion: async (paymentId, txid) => {
         try {
           const result = await api('/api/payments/complete', { paymentId, txid, accessToken: piAccessToken });
-          toast(result.message || 'Paiement terminé.');
+          const label = product.category === 'Service' ? 'Réservation confirmée' : 'Inscription confirmée';
+          toast(result.status === 'completed' ? label + ' : ' + product.name + '. Retrouvez-la dans « Mes inscriptions ».' : (result.message || 'Paiement terminé.'));
+          refreshSpaces();
         } catch (e) { toast('Vérification du paiement nécessaire : ' + e.message); }
       },
       onCancel: async (paymentId) => {
         try { await api('/api/payments/cancel', { paymentId, accessToken: piAccessToken }); } catch {}
         toast('Paiement annulé.');
+        refreshSpaces();
       },
       onError: (error) => toast('Erreur de paiement : ' + (error?.message || 'inconnue'))
     });
@@ -131,7 +223,20 @@ async function buy(product, button) {
     button.disabled = false;
   }
 }
-$('#connect').addEventListener('click', connectPi);
+// Une fois connecté, le bouton du compte mène à « Mes inscriptions ».
+$('#connect').addEventListener('click', () => {
+  if (piUser) { $('#mes-inscriptions').scrollIntoView({ behavior: 'smooth' }); return; }
+  connectPi();
+});
+$('#nav-mine').addEventListener('click', async (event) => {
+  if (piUser) return;
+  event.preventDefault();
+  await connectPi();
+  if (piUser) $('#mes-inscriptions').scrollIntoView({ behavior: 'smooth' });
+});
+$('#refresh-mine').addEventListener('click', loadMine);
+$('#refresh-admin').addEventListener('click', loadAdmin);
+$('#admin-filter').addEventListener('change', renderAdmin);
 $('#year').textContent = new Date().getFullYear();
 initPi();
 loadProducts();

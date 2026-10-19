@@ -2,11 +2,12 @@
 // Réglages de la fonction (console Appwrite) :
 //   Entrée : appwrite/main.js — Dossier racine : ./ — Environnement : Node.js 22 — Exécution : « Any »
 //   Portées : databases, tables, columns, indexes, rows (lecture et écriture)
-//   Variables : PI_API_KEY (secrète) ; facultatives : PI_NETWORK (testnet|mainnet), PI_SANDBOX (true|false), PI_VALIDATION_KEY
+//   Variables : PI_API_KEY (secrète) ; facultatives : PI_NETWORK (testnet|mainnet), PI_SANDBOX (true|false), PI_VALIDATION_KEY,
+//               ADMIN_USERNAMES (noms d'utilisateur Pi autorisés à l'administration, séparés par des virgules)
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createApi } from '../core/handler.js';
+import { createApi, parseAdminUsernames } from '../core/handler.js';
 import { createAppwriteStore } from './store.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -31,6 +32,7 @@ export default async ({ req, res, log, error }) => {
     sandbox: env.PI_SANDBOX === 'true',
     network: env.PI_NETWORK === 'mainnet' ? 'mainnet' : 'testnet',
     validationKey: env.PI_VALIDATION_KEY || '',
+    adminUsernames: parseAdminUsernames(env.ADMIN_USERNAMES),
     exposeErrors: false,
     log: (...parts) => error(parts.join(' '))
   });

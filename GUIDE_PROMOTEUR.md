@@ -27,6 +27,13 @@ Sans KYC validé, l'application ne pourra pas être référencée.
 
 L'application est hébergée gratuitement sur Appwrite par Hilaila (procédure : [DEPLOIEMENT_APPWRITE.md](DEPLOIEMENT_APPWRITE.md)). Votre seule action : recopier dans le champ **Production URL** de l'application Testnet l'adresse que Hilaila vous communiquera (elle se termine par `.appwrite.run`). Le transfert de l'hébergement à votre nom est prévu dans l'accord.
 
+## Étape 2 ter — Votre espace d'administration
+
+1. Communiquez à Hilaila votre **nom d'utilisateur Pi** (celui qui s'affiche dans l'application Pi, sans @). Ce n'est pas un secret.
+2. Hilaila l'enregistre dans l'hébergement.
+3. Dans le Pi Browser, ouvrez l'application, appuyez sur **Connexion Pi**, puis sur **Administration** : vous voyez toutes les inscriptions, leur état et les recettes par offre.
+4. Chaque apprenant retrouve ses propres achats dans **Mes inscriptions**, avec une référence de paiement à vous indiquer par e-mail.
+
 ## Étape 3 — Valider les contenus (à envoyer à Hilaila)
 
 Répondez « validé » ou envoyez vos corrections pour :

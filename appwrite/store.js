@@ -97,10 +97,28 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
     payment_id: row.payment_id, txid: row.txid ?? null, status: row.status, created_at: row.created_at
   });
 
+  // Lecture par pages de 100 lignes ; le tri par date est fait ensuite par l'API.
+  async function listRows(username, limit) {
+    await ensureSchema();
+    const rows = [];
+    const page = 100;
+    while (rows.length < limit) {
+      const want = Math.min(page, limit - rows.length);
+      const queries = [{ method: 'limit', values: [want] }, { method: 'offset', values: [rows.length] }];
+      if (username) queries.unshift({ method: 'equal', attribute: 'username', values: [username] });
+      const list = await call('GET', `${tablePath}/rows`, null, queries);
+      const batch = list.rows || [];
+      rows.push(...batch);
+      if (batch.length < want) break;
+    }
+    return rows;
+  }
+
   return {
     kind: 'appwrite',
     prepare: ensureSchema,
     async getOrder(paymentId) { return toOrder(await findRow(paymentId)); },
+    async listOrders({ username, limit = 200 } = {}) { return (await listRows(username, limit)).map(toOrder); },
     async insertOrder(o) {
       await ensureSchema();
       await call('POST', `${tablePath}/rows`, {

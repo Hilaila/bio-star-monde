@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
-import { createApi } from '../core/handler.js';
+import { createApi, parseAdminUsernames } from '../core/handler.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -51,7 +51,12 @@ const store = {
       .run(o.id, o.username, o.product_id, o.amount, o.memo, o.payment_id, o.status, o.created_at);
   },
   async completeOrder(paymentId, txid) { db.prepare("UPDATE orders SET txid = ?, status = 'completed' WHERE payment_id = ?").run(txid, paymentId); },
-  async cancelOrder(paymentId) { db.prepare("UPDATE orders SET status = 'cancelled' WHERE payment_id = ? AND status != 'completed'").run(paymentId); }
+  async cancelOrder(paymentId) { db.prepare("UPDATE orders SET status = 'cancelled' WHERE payment_id = ? AND status != 'completed'").run(paymentId); },
+  async listOrders({ username, limit = 200 } = {}) {
+    return username
+      ? db.prepare('SELECT * FROM orders WHERE username = ? ORDER BY created_at DESC LIMIT ?').all(username, limit)
+      : db.prepare('SELECT * FROM orders ORDER BY created_at DESC LIMIT ?').all(limit);
+  }
 };
 
 // Catalogue : core/catalogue.json, validé par le promoteur.
@@ -61,6 +66,7 @@ const api = createApi({
   piApiKey: env.PI_API_KEY || '',
   sandbox: piSandbox, network: piNetwork,
   validationKey: env.PI_VALIDATION_KEY || '',
+  adminUsernames: parseAdminUsernames(env.ADMIN_USERNAMES),
   exposeErrors: !isProd
 });
 

@@ -26,14 +26,15 @@ Une seule fonction Appwrite sert les pages, l'API Pi et la base de données. Ell
 
 1. **Environment variables**, puis **Create variable** :
    - `PI_API_KEY` = clé API de l'application Pi Testnet, en cochant **Secret** ;
-   - `PI_NETWORK` = `testnet`.
+   - `PI_NETWORK` = `testnet` ;
+   - `ADMIN_USERNAMES` = nom d’utilisateur Pi de M. ZOUGBA NATHANAËL, sans @ (ajoutez celui de Hilaila après une virgule si l’accord le prévoit).
 2. **Timeout** : 30 secondes.
 3. Onglet **Deployments**, menu ⋯ du dernier déploiement, puis **Redeploy** : les variables ne s'appliquent qu'après un redéploiement.
 
 ## 4. Vérifier
 
 1. Onglet **Domains** : copiez l'adresse de la fonction (elle se termine par `.appwrite.run`).
-2. Ouvrez `https://<adresse>/api/health` : la réponse doit contenir `"piApiKeyConfigured":true`.
+2. Ouvrez `https://<adresse>/api/health` : la réponse doit contenir `"piApiKeyConfigured":true` et, une fois `ADMIN_USERNAMES` saisie, `"adminConfigured":true`.
 3. Ouvrez une fois `https://<adresse>/api/setup` : la réponse `"ok":true` confirme que la base et la table des commandes sont prêtes.
 4. Ouvrez `https://<adresse>/` : la page d'accueil et le catalogue s'affichent.
 
@@ -41,7 +42,8 @@ Une seule fonction Appwrite sert les pages, l'API Pi et la base de données. Ell
 
 1. M. ZOUGBA NATHANAËL recopie l'adresse dans le champ **Production URL** de l'application Testnet sur develop.pi.
 2. Dans le Pi Browser, ouvrez l'application, appuyez sur **Connexion Pi**, puis payez une petite offre (0,2 ou 0,3 Pi de test) avec un portefeuille Testnet.
-3. En cas d'erreur : onglet **Executions** de la fonction, pour lire les journaux.
+3. Après le paiement : la section **Mes inscriptions** affiche l’inscription « Confirmée ». Avec le compte de M. ZOUGBA, la section **Administration** affiche les recettes.
+4. En cas d'erreur : onglet **Executions** de la fonction, pour lire les journaux.
 
 ## À savoir
 
