@@ -4,7 +4,8 @@ L'approbation reste une décision exclusive de la Pi Core Team. Vérifiez les ex
 
 ## Comptes — M. ZOUGBA NATHANAËL
 
-- [ ] KYC validé et portefeuille Mainnet migré.
+- [x] KYC validé (confirmé le 19 octobre 2026).
+- [ ] Portefeuille Mainnet migré.
 - [ ] Application Testnet enregistrée dans son Developer Portal ; application Mainnet créée ensuite et reliée (« Paired Testnet App »).
 - [ ] Domaine vérifié et portefeuille de l'application connecté (Mainnet).
 - [ ] Clés API transmises à Hilaila par un canal sécurisé.
@@ -32,7 +33,7 @@ L'approbation reste une décision exclusive de la Pi Core Team. Vérifiez les ex
 ## Critères de référencement Mainnet — les deux
 
 - [ ] Application entièrement fonctionnelle, interface professionnelle.
-- [ ] KYC du développeur qui soumet validé.
+- [x] KYC du développeur qui soumet validé.
 - [ ] Aucune violation de la marque Pi.
 - [ ] Connexion uniquement par compte Pi (ni e-mail, ni mot de passe, ni Google).
 - [ ] Transactions uniquement en Pi : aucun paiement en FCFA ni en autre jeton dans l'application.

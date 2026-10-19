@@ -55,7 +55,7 @@ L'approbation reste une décision de la Pi Core Team. Cochez d'abord [PI_APPROVA
 | Exigence Pi | Dans Bio Star Monde Éden |
 | --- | --- |
 | Application complète, interface professionnelle | Catalogue, BioStar Academy, BioSmart, exploitation et lots, BioImpact, contact, administration. 2 suites de tests automatisés (`npm test`), serveur Node et fonction Appwrite. |
-| KYC du développeur | À faire valider par M. ZOUGBA NATHANAËL avant la soumission Mainnet. |
+| KYC du développeur | Validé pour le compte Pi de M. ZOUGBA NATHANAËL (confirmé le 19 octobre 2026). |
 | Pas d'usage abusif de la marque Pi | Nom sans « Pi ». Domaine `bio-star-monde…`, qui ne commence pas par « pi ». Logo propre à l'Institut (BS, vert et or). |
 | Connexion Pi uniquement | `Pi.authenticate(['username', 'payments'])`. Le jeton est vérifié par le serveur auprès de `https://api.minepi.com/v2/me` à chaque appel. Ni e-mail, ni mot de passe, ni autre fournisseur. |
 | Transactions en Pi uniquement | Prix en Pi, `Pi.createPayment`, approbation et finalisation par le serveur avec la clé `PI_API_KEY`. Le prix vient du catalogue serveur ; montant, compte et transaction sont contrôlés auprès de Pi. Paiements incomplets repris. |
