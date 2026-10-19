@@ -58,6 +58,8 @@ function renderFarmCard(farm) {
   card.append(el('p', 'farm-training', trainings.length
     ? 'Formations confirmées : ' + trainings.join(' · ') + (farm.showTraining ? ' — affichées sur la page de vos lots.' : ' — non affichées sur la page de vos lots.')
     : 'Aucune formation confirmée pour le moment. Une fois inscrit, vous pourrez l’afficher sur la page de vos lots.'));
+  const attestations = farmData.attestations || [];
+  if (attestations.length) card.append(el('p', 'farm-training', 'Attestations BioStar Academy : ' + attestations.map((a) => a.courseTitle).join(' · ')));
 }
 
 function openFarmForm(farm) {

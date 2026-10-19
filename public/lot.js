@@ -25,6 +25,11 @@ function renderTrace(d) {
     t.append(el('strong', null, 'Producteur inscrit aux formations Bio Star Monde Éden'), el('p', null, d.trainings.join(' · ')));
     origin.append(t);
   }
+  if (d.attestations && d.attestations.length) {
+    const t = el('div', 'trace-training');
+    t.append(el('strong', null, 'Attestations BioStar Academy obtenues'), el('p', null, d.attestations.map((a) => a.courseTitle + ' (' + formatDay(a.issuedAt) + ')').join(' · ')));
+    origin.append(t);
+  }
 
   const qr = el('section', 'panel trace-qr');
   qr.append(el('h2', null, 'Code QR du lot'), BSMEQR.toSvg(traceUrl(d.lot.code), { title: 'Code QR du lot ' + d.lot.code }), el('p', 'qr-url', traceUrl(d.lot.code)));

@@ -48,7 +48,7 @@ Une seule fonction Appwrite sert les pages, l'API Pi et la base de données. Ell
 ## 6. Après chaque nouvelle version
 
 1. Attendez que le déploiement soit **Ready** (onglet **Deployments**).
-2. Ouvrez une fois `https://bio-star-monde.fra.appwrite.run/api/setup` : il crée les tables ajoutées par la version (exploitations, parcelles, lots, étapes) sans toucher aux commandes. Si la réponse tarde, ouvrez-la une seconde fois.
+2. Ouvrez une fois `https://bio-star-monde.fra.appwrite.run/api/setup` : il crée les tables ajoutées par la version sans toucher aux commandes. La version 1.7 ajoute : progression, attestations, demandes de conseil et messages. Si la réponse tarde, ouvrez-la une seconde fois.
 
 ## À savoir
 

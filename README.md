@@ -42,7 +42,20 @@ Contribuer à l’émergence d’un pôle d’excellence agrobiologique associan
 
 ## 5. Application numérique — version de démarrage
 
-Cette base comprend une interface web responsive en français, un serveur Node.js, un catalogue de 12 formations et services tirés de la présentation de l’Institut (`core/catalogue.json`), une base SQLite, une politique de confidentialité et des conditions d’utilisation et de vente, ainsi que l’intégration Pi (connexion, paiements, paiements incomplets). Le catalogue, les prix et les pages légales sont des propositions à valider par le promoteur ; les montants sont en Pi de test.
+Cette base comprend une interface web responsive en français, un serveur Node.js, un catalogue de 12 formations et services tirés de la présentation de l’Institut (`core/catalogue.json`), une base SQLite, une politique de confidentialité et des conditions d’utilisation et de vente, ainsi que l’intégration Pi (connexion, paiements, paiements incomplets).
+
+Modules ouverts dans la version 1.7 :
+
+| Module | Ce que l’utilisateur peut faire |
+| --- | --- |
+| BioStar Academy | Suivre les leçons des 9 formations (`core/academy.json`) après inscription payée en Pi, faire valider le module pratique par le formateur, recevoir une attestation `ATT-XXXXXXXX` avec code QR, vérifiable sur `attestation.html`. |
+| BioSmart | Consulter le calendrier agricole (Burkina Faso, Sud-Togo), calculer 6 recettes de bio-intrants selon la surface, établir un diagnostic par symptômes (10 cas) et demander l’avis d’un conseiller, qui répond depuis l’Administration. |
+| BioFarm Manager · BioTrace | Fiche d’exploitation, parcelles, lots, étapes, page publique du lot ; les attestations obtenues y figurent si le producteur l’accepte. |
+| BioImpact | Estimer le carbone stocké par 4 pratiques (estimation indicative, sans crédit carbone). |
+| Contact | Écrire à l’Institut sans quitter l’application. |
+| Administration | Inscriptions et recettes, validations pratiques, réponses aux demandes de conseil, messages reçus. |
+
+Dossier pour la fiche de l’application dans Pi (logo 1024 px, 5 captures, descriptions, conformité) : [docs/fiche-pi/DOSSIER_SOUMISSION_PI.md](docs/fiche-pi/DOSSIER_SOUMISSION_PI.md). Le catalogue, les prix et les pages légales sont des propositions à valider par le promoteur ; les montants sont en Pi de test.
 
 **Cette version n’est pas prête pour une mise en production sans configuration et vérifications supplémentaires.** Il manque notamment une véritable interface d’administration avec rôles sécurisés, la validation juridique des pages de confidentialité et de conditions, les données réelles de l’organisation et les essais Pi sur l’environnement autorisé. Aucune fonctionnalité non implémentée ou non vérifiée ne doit être présentée comme opérationnelle.
 
@@ -63,7 +76,7 @@ Une seule fonction sert les pages et l’API sur le même domaine. Elle se redé
 3. Remplacer `SESSION_SECRET` par une valeur aléatoire forte avant tout déploiement.
 4. Lancer `npm start`, puis ouvrir `http://localhost:3000`.
 5. Pour tester la syntaxe du serveur : `npm run check`.
-6. Pour lancer les tests (paiements, espaces, exploitation, lots, traçabilité, fonction Appwrite) : `npm test`.
+6. Pour lancer les tests (paiements, espaces, exploitation, lots, traçabilité, académie, attestations, conseil, messages, fonction Appwrite) : `npm test`.
 
 Ne publiez jamais le fichier `.env`, les clés API, les mots de passe ou d’autres secrets.
 
@@ -110,6 +123,14 @@ Liste de contrôle avant soumission : [PI_APPROVAL_CHECKLIST.md](PI_APPROVAL_CHE
 - `POST /api/lots/event` — ajout d’une étape à un lot (jamais modifiée ni effacée).
 - `GET /api/trace?code=BSME-XXXXXXXX` — traçabilité publique d’un lot, sans donnée de compte (page `lot.html`, code QR).
 - `POST /api/admin/orders` — toutes les inscriptions et les recettes, réservé aux comptes de `ADMIN_USERNAMES`.
+- `POST /api/academy` — formations, modules, progression et attestations du compte (leçons réservées aux inscrits).
+- `POST /api/academy/progress` — module terminé, demande de validation pratique ou annulation.
+- `GET /api/attestation?code=ATT-XXXXXXXX` — vérification publique d’une attestation (page `attestation.html`, code QR).
+- `POST /api/advice` et `POST /api/advice/mine` — demandes d’avis à un conseiller (BioSmart) et leurs réponses.
+- `POST /api/contact` — message à l’Institut.
+- `POST /api/admin/academy` — validations pratiques en attente, demandes de conseil et messages, réservé aux comptes de `ADMIN_USERNAMES`.
+- `POST /api/admin/validate` — validation ou refus d’un module pratique ; délivre l’attestation quand la formation est terminée.
+- `POST /api/admin/answer` — réponse à une demande de conseil.
 
 ## 6. Contact officiel
 

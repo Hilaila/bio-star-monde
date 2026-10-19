@@ -24,7 +24,10 @@ L'approbation reste une décision exclusive de la Pi Core Team. Vérifiez les ex
 
 - [ ] Catalogue, prix, formations et produits réels ; aucune page « bientôt disponible ».
 - [ ] Politique de confidentialité et conditions d'utilisation adaptées aux pratiques réelles.
-- [ ] Coordonnées de contact valides et support utilisateur opérationnel.
+- [ ] Coordonnées de contact valides et support utilisateur opérationnel (formulaire « Écrire à l'Institut » lu dans l'Administration).
+- [ ] Leçons des formations (`core/academy.json`) et fiches BioSmart relues et validées.
+- [ ] Au moins une attestation délivrée de bout en bout et vérifiée par son code QR.
+- [ ] Fiche de l'application prête : logo 1024 px, captures, descriptions ([docs/fiche-pi/DOSSIER_SOUMISSION_PI.md](docs/fiche-pi/DOSSIER_SOUMISSION_PI.md)).
 
 ## Critères de référencement Mainnet — les deux
 

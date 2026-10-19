@@ -19,7 +19,7 @@ L'application n'est ni un simple catalogue de formations ni une boutique agricol
 | --- | --- | --- | --- |
 | Compte | nom d'utilisateur Pi | — | Connexion Pi |
 | Inscription | `payment_id` | Compte | BioStar Academy (paiement en Pi) |
-| Attestation | `attestation_id` | Inscription | BioStar Academy |
+| Attestation | code `ATT-XXXXXXXX` | Compte, formation | BioStar Academy |
 | Exploitation | `farm_id` | Compte (propriétaire) | BioFarm Manager |
 | Parcelle | `plot_id` | Exploitation | BioFarm Manager |
 | Recommandation | `advice_id` | Exploitation, parcelle | BioSmart |
@@ -47,9 +47,9 @@ L'application n'est ni un simple catalogue de formations ni une boutique agricol
 
 1. **Fait** : catalogue, paiement en Pi, Mes inscriptions, Administration.
 2. **Fait — socle** : fiche d'exploitation, parcelles, lots, étapes non modifiables, page publique `lot.html` avec code QR, formations du producteur affichées s'il l'accepte. Tout le reste s'y rattache.
-3. **BioStar Academy** : contenu des cours réservé aux inscrits, progression, attestation vérifiable reliée à l'exploitation.
-4. **BioSmart** : fiches d'orientation validées par le promoteur, puis assistant d'intelligence artificielle.
-5. **BioLab et BioImpact** : essais et actions rattachés aux parcelles.
+3. **Fait — BioStar Academy** : leçons réservées aux inscrits (`core/academy.json`), progression, module pratique validé par le formateur, attestation vérifiable (`attestation.html`, code QR) affichée sur la fiche d'exploitation et, sur accord, sur la page des lots.
+4. **Fait — BioSmart, fiches** : calendrier agricole (Burkina Faso, Sud-Togo), recettes de bio-intrants, diagnostic par symptômes, demande d'avis à un conseiller. **À venir** : validation des fiches par le promoteur, puis assistant d'intelligence artificielle.
+5. **BioLab et BioImpact** : simulateur carbone ouvert (estimation indicative). **À venir** : essais et actions d'impact rattachés aux parcelles.
 6. **BioMarket** : d'abord les produits de la ferme-école vendus par l'Institut, ensuite ceux des producteurs formés.
 7. **BioPartners et Registre** : demandes de partenariat, rapports agrégés, export des données.
 

@@ -14,6 +14,7 @@ import { TABLES } from '../core/schema.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC = path.resolve(here, '../public');
 const catalogue = JSON.parse(await fs.readFile(path.resolve(here, '../core/catalogue.json'), 'utf8')).items;
+const academy = JSON.parse(await fs.readFile(path.resolve(here, '../core/academy.json'), 'utf8'));
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8', '.json': 'application/json; charset=utf-8' };
 const SECURITY = { 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin' };
@@ -28,7 +29,7 @@ export default async ({ req, res, log, error }) => {
     key: req.headers['x-appwrite-key'] || ''
   });
   const api = createApi({
-    catalogue, store,
+    catalogue, academy, store,
     piApiKey: env.PI_API_KEY || '',
     sandbox: env.PI_SANDBOX === 'true',
     network: env.PI_NETWORK === 'mainnet' ? 'mainnet' : 'testnet',

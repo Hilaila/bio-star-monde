@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10251b">
+<meta name="description" content="Vérification d’une attestation de formation délivrée par BioStar Academy, Bio Star Monde Éden.">
+<title>Vérifier une attestation — Bio Star Monde Éden</title>
+<link rel="stylesheet" href="/style.css">
+<script src="/config.js"></script>
+<script defer src="/common.js"></script>
+<script defer src="/qr.js"></script>
+<script defer src="/attestation.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/" aria-label="Bio Star Monde Éden, accueil"><span class="mark">BS</span><span>Bio Star Monde Éden<small>AGROÉCOLOGIE · FORMATION · TERRE</small></span></a>
+  <a class="button secondary" href="/">Accueil</a>
+</header>
+<main class="trace">
+  <p class="eyebrow">BIOSTAR ACADEMY · VÉRIFICATION D’UNE ATTESTATION</p>
+  <div id="att-root" aria-live="polite"><p class="empty">Vérification en cours…</p></div>
+  <form id="att-form" class="panel form trace-search" novalidate>
+    <label for="att-code">Vérifier une autre attestation</label>
+    <div class="search-row">
+      <input id="att-code" name="code" placeholder="ATT-XXXXXXXX" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <button class="button" type="submit">Vérifier</button>
+    </div>
+  </form>
+</main>
+<footer>
+  <div><strong>Bio Star Monde Éden</strong><p>Former, innover, produire et commercialiser pour un monde agro-biologique durable.</p></div>
+  <div class="footer-links"><a href="/privacy.html">Confidentialité</a><a href="/terms.html">Conditions</a><a href="/#contact">Contact</a></div>
+</footer>
+</body>
+</html>

@@ -127,7 +127,7 @@ for (const [name, def] of Object.entries(TABLES)) {
   assert.ok(t, 'table créée : ' + name);
   assert.equal(t.columns.length, def.columns.length, 'colonnes de ' + name); assert.equal(t.indexes.length, def.indexes.length, 'index de ' + name);
 }
-ok('préparation des 5 tables par /api/setup (commandes, exploitations, parcelles, lots, étapes)');
+ok('préparation des ' + Object.keys(TABLES).length + ' tables par /api/setup (' + Object.keys(TABLES).join(', ') + ')');
 const structure = () => db.calls.filter((c) => /^(POST \/tablesdb$|POST .*\/(tables|columns\/\w+|indexes)$)/.test(c)).length;
 let before = structure();
 r = await run('GET', '/api/setup'); assert.equal(r.json.ok, true); assert.equal(structure(), before); ok('préparation relancée sans effet de bord');
@@ -177,6 +177,32 @@ assert.deepEqual(r.json.events.map((e) => e.type), ['semis', 'recolte']); assert
 assert.equal(r.body.includes('alice'), false); ok('traçabilité publique (Appwrite) : formations liées, aucun nom d’utilisateur');
 r = await run('POST', '/api/farm', { accessToken: 'tok-alice-1234' });
 assert.equal(r.json.lots[0].events.length, 2); assert.equal(r.json.plots.length, 1); ok('tableau de bord de l’exploitation');
+
+// --- BioStar Academy sur Appwrite : progression, validation pratique, attestation ---
+payments.set('p6', { identifier: 'p6', user_uid: 'u1', amount: 0.3, metadata: { productId: 'biochar' }, status: {}, transaction: null });
+r = await run('POST', '/api/academy', { accessToken: 'tok-alice-1234' });
+assert.equal(r.status, 200, JSON.stringify(r)); const bio = r.json.courses.find((c) => c.id === 'biochar');
+assert.equal(bio.enrolled, true, 'inscription biochar confirmée (p2)');
+for (const m of bio.modules) {
+  r = await run('POST', '/api/academy/progress', { accessToken: 'tok-alice-1234', courseId: 'biochar', moduleIndex: m.index, action: m.practical ? 'request' : 'done' });
+  assert.equal(r.status, 200, JSON.stringify(r));
+}
+const progressRows = db.tables.get('progress').rows;
+assert.equal(progressRows.length, bio.modules.length); assert.ok(progressRows.every((x) => x.$id.length <= 36 && /^[a-z0-9]+$/.test(x.$id)), 'identifiants de ligne valides pour Appwrite');
+r = await run('POST', '/api/admin/academy', { accessToken: 'tok-zougba-1234' });
+assert.equal(r.json.validations.length, 1);
+const val = r.json.validations[0];
+r = await run('POST', '/api/admin/validate', { accessToken: 'tok-zougba-1234', username: val.username, courseId: val.courseId, moduleIndex: val.moduleIndex, decision: 'approve' });
+assert.equal(r.status, 200, JSON.stringify(r)); const att = r.json.attestation.code;
+assert.equal(db.tables.get('attestations').rows[0].$id, att);
+r = await run('GET', '/api/attestation', null, 'code=' + att);
+assert.equal(r.json.valid, true); assert.equal(r.json.attestation.courseTitle, 'Production et usage du biochar');
+r = await run('POST', '/api/advice', { accessToken: 'tok-alice-1234', advice: { crop: 'Maïs', symptom: 'Feuilles trouées en fenêtres' } });
+assert.equal(r.status, 200, JSON.stringify(r));
+r = await run('POST', '/api/admin/answer', { accessToken: 'tok-zougba-1234', id: r.json.advice.id, answer: 'Inspectez 20 plants et traitez au neem.' });
+assert.equal(r.json.advice.status, 'answered');
+r = await run('POST', '/api/contact', { accessToken: 'tok-alice-1234', message: 'Merci pour la formation.' }); assert.equal(r.status, 200);
+ok('académie, attestation, conseil et messages sur Appwrite');
 
 for (let i = 0; i < 230; i++) orders().push({ $id: 'x' + i, username: 'carol', product_id: 'diagnostic-parcelle', amount: 0.2, memo: 'Diagnostic', payment_id: 'px' + i, txid: 'tx' + i, status: 'completed', created_at: new Date(Date.UTC(2026, 9, 1, 0, i)).toISOString() });
 r = await run('POST', '/api/admin/orders', { accessToken: 'tok-zougba-1234' });

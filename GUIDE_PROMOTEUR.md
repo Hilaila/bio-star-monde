@@ -42,6 +42,13 @@ L'application est hébergée gratuitement sur Appwrite par Hilaila (procédure :
 4. Chaque lot a un code et un code QR à coller sur l'emballage : l'acheteur voit l'origine et l'historique, sans connexion.
 5. Les étapes ne s'effacent pas : une erreur se corrige par une étape « Correction ».
 
+## Étape 2 quinquies — Votre rôle de formateur dans l'application
+
+1. **Modules pratiques** : chaque formation se termine par une séance pratique en ferme-école. L'apprenant demande la validation dans l'application ; vous la voyez dans **Administration**, section « Modules pratiques à valider ». Validez seulement après avoir constaté la pratique. Quand tous les modules sont terminés, l'attestation `ATT-XXXXXXXX` est délivrée automatiquement.
+2. **Demandes de conseil** : les producteurs décrivent un problème de culture ou d'élevage depuis BioSmart. Répondez dans la section « Demandes de conseil » ; la réponse s'affiche chez eux.
+3. **Messages** : les messages écrits depuis « Écrire à l'Institut » arrivent dans la section « Messages reçus », avec le nom d'utilisateur Pi de l'expéditeur.
+4. **Vérifier une attestation** : scannez son code QR, ou saisissez son code sur la page « Vérifier une attestation ».
+
 ## Étape 3 — Valider les contenus (à envoyer à Hilaila)
 
 Répondez « validé » ou envoyez vos corrections pour :
@@ -50,6 +57,9 @@ Répondez « validé » ou envoyez vos corrections pour :
 2. **Vos prix réels en FCFA**, pour chaque offre. Ils serviront à calculer les prix en Pi du Mainnet.
 3. **Les conditions d'utilisation et de vente** (`public/terms.html`), en particulier la règle en cas d'erreur de paiement.
 4. **La politique de confidentialité** (`public/privacy.html`).
+5. **Les leçons des 9 formations** (`core/academy.json`) : intitulés des modules, points à retenir, module pratique de chaque formation.
+6. **Les fiches BioSmart** (`public/biosmart.js`) : calendrier agricole, doses des 6 recettes de bio-intrants, causes et traitements des 10 cas de diagnostic.
+7. **La fiche de l'application dans Pi** : logo, captures et descriptions de [docs/fiche-pi/DOSSIER_SOUMISSION_PI.md](docs/fiche-pi/DOSSIER_SOUMISSION_PI.md).
 
 ## Étape 4 — Ouvrir sur le Mainnet (après les essais réussis)
 

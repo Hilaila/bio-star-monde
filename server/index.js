@@ -101,8 +101,9 @@ const store = {
 
 // Catalogue : core/catalogue.json, validé par le promoteur.
 const catalogue = JSON.parse(fs.readFileSync(path.join(ROOT, 'core/catalogue.json'), 'utf8')).items;
+const academy = JSON.parse(fs.readFileSync(path.join(ROOT, 'core/academy.json'), 'utf8'));
 const api = createApi({
-  catalogue, store,
+  catalogue, academy, store,
   piApiKey: env.PI_API_KEY || '',
   sandbox: piSandbox, network: piNetwork,
   validationKey: env.PI_VALIDATION_KEY || '',

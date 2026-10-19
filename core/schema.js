@@ -9,6 +9,8 @@ const date = (key, required = true) => ({ type: 'datetime', body: { key, require
 const choice = (key, elements, required = true) => ({ type: 'enum', body: { key, elements, required } });
 
 export const EVENT_TYPES = ['preparation', 'semis', 'intrant', 'traitement', 'irrigation', 'recolte', 'transformation', 'stockage', 'controle', 'vente', 'correction', 'autre'];
+// done : module terminé ; pending : module pratique en attente de validation ; todo : à faire (annulé ou refusé).
+export const PROGRESS_STATUS = ['done', 'pending', 'todo'];
 
 export const TABLES = {
   orders: {
@@ -55,6 +57,48 @@ export const TABLES = {
       { key: 'lot_idx', type: 'key', columns: ['lot_id'] },
       { key: 'owner_idx', type: 'key', columns: ['owner'] }
     ]
+  },
+  // BioStar Academy : un module suivi par un compte (identifiant de ligne calculé à partir du compte, du cours et du module).
+  progress: {
+    name: 'Progression',
+    columns: [
+      text('owner', 64, true), text('course_id', 64, true), float('module_index', true), choice('status', PROGRESS_STATUS),
+      date('created_at'), date('updated_at')
+    ],
+    indexes: [
+      { key: 'owner_idx', type: 'key', columns: ['owner'] },
+      { key: 'status_idx', type: 'key', columns: ['status'] }
+    ]
+  },
+  // Attestation de suivi : son code (ATT-XXXXXXXX) sert d'identifiant de ligne et de clé de vérification publique.
+  attestations: {
+    name: 'Attestations',
+    columns: [
+      text('owner', 64, true), text('course_id', 64, true), text('course_title', 160, true), text('hash', 64, true),
+      choice('status', ['valid', 'revoked']), date('created_at')
+    ],
+    indexes: [
+      { key: 'owner_idx', type: 'key', columns: ['owner'] },
+      { key: 'owner_course_unique', type: 'unique', columns: ['owner', 'course_id'] }
+    ]
+  },
+  // BioSmart : demande d'avis à un conseiller de terrain.
+  advice: {
+    name: 'Demandes de conseil',
+    columns: [
+      text('owner', 64, true), text('crop', 40, true), text('symptom', 200), text('cause', 200), text('message', 1000),
+      choice('status', ['open', 'answered']), text('answer', 2000), date('answered_at', false), date('created_at')
+    ],
+    indexes: [
+      { key: 'owner_idx', type: 'key', columns: ['owner'] },
+      { key: 'status_idx', type: 'key', columns: ['status'] }
+    ]
+  },
+  // Messages écrits à l'Institut depuis l'application.
+  messages: {
+    name: 'Messages',
+    columns: [text('owner', 64, true), text('message', 1000, true), date('created_at')],
+    indexes: [{ key: 'owner_idx', type: 'key', columns: ['owner'] }]
   }
 };
 

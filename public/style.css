@@ -106,3 +106,75 @@
 .trace-grid{grid-template-columns:1fr}
 .trace-qr svg{max-width:240px}
 }
+/* --- BioStar Academy, BioSmart, BioImpact, contact --- */
+.academy,.bioimpact{background:var(--cream)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.chip{font:inherit;font-size:.86rem;font-weight:700;padding:7px 13px;border-radius:30px;border:1px solid #cbd8c8;background:#fff;color:var(--green);cursor:pointer;min-height:38px}
+.chip[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+.chip:focus-visible,.opt:focus-visible,.module-head:focus-visible,.course-head:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.meter{display:block;height:8px;border-radius:8px;background:#e6ece3;overflow:hidden;margin-top:8px}
+.meter>span{display:block;height:100%;background:var(--green2);border-radius:inherit}
+.course>summary{list-style:none;display:block}
+.course>summary::-webkit-details-marker{display:none}
+.course-head .order-top strong{font-size:1.05rem}
+.course[open]>summary{margin-bottom:6px}
+.enroll{margin:14px 0 4px;padding:12px 14px;border-radius:12px;background:#fff9e9;border:1px solid #eee0b8;display:grid;gap:10px;justify-items:start}
+.enroll p{margin:0;font-size:.9rem;color:#665b3d}
+.modules{display:grid;gap:2px;margin-top:10px}
+.module{border-top:1px solid var(--line);padding:10px 0}
+.module-head{display:flex;gap:12px;align-items:flex-start;cursor:pointer;list-style:none}
+.module-head::-webkit-details-marker{display:none}
+.module-state{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;font-size:.8rem;font-weight:850;background:#eef2ec;color:var(--green)}
+.module-state.done{background:var(--green2);color:#fff}
+.module-state.pending{background:#fff4d6;color:#7a5b12}
+.module-label{display:grid;min-width:0}
+.module-label small{color:var(--muted);font-size:.8rem}
+.lesson{margin:10px 0 12px;padding-left:22px;display:grid;gap:6px;color:#3d4a40;font-size:.93rem}
+.module .form-actions{padding-left:40px}
+.module .lesson{margin-left:40px;padding-left:18px}
+.attestation .order-top strong{font-size:1rem}
+.bs-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px}
+.bs-grid .panel{margin:0}
+.cal-month{margin:4px 0 0;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.season{margin:2px 0 4px;font-size:1.6rem;letter-spacing:-.02em;color:var(--green)}
+.cal-strip{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px;margin:12px 0 8px}
+.month{display:grid;place-items:center;height:32px;border-radius:7px;font-size:.78rem;font-weight:800}
+.m-rain{background:#dfe9f3;color:#28507a}
+.m-cool{background:#e3efe0;color:var(--green)}
+.m-hot{background:#f7ebcc;color:#7a5b12}
+.month.now{background:var(--green);color:var(--gold);transform:translateY(-3px)}
+.cal-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8rem;color:var(--muted)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tip{margin:14px 0 0;padding:12px 14px;border-radius:12px;background:#f4f7f1;border-left:4px solid var(--gold);font-size:.93rem}
+.recipe-kind{display:inline-block;margin:0 0 6px}
+.recipe-name{margin:0;font-size:1.2rem;color:var(--green)}
+.recipe-out{margin:16px 0 6px;font-weight:850;color:var(--green2);font-size:1.05rem}
+.ing{width:100%;border-collapse:collapse;font-size:.92rem;margin-bottom:10px}
+.ing td{padding:8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.ing td.qty{text-align:right;white-space:nowrap;padding-left:12px;font-weight:750;font-variant-numeric:tabular-nums}
+.caution{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:#f3e6e3;color:#5c2a20;font-size:.88rem}
+#bs-diagnosis{margin-top:14px}
+#bs-diagnosis .form-title{margin:14px 0 8px;font-size:1rem}
+.opts{display:grid;gap:8px}
+.opt{font:inherit;text-align:left;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+.opt[aria-pressed="true"]{border-color:var(--green2);box-shadow:inset 0 0 0 1px var(--green2);background:#f4f7f1}
+.diag{margin:14px 0 0;background:#fbfcfa}
+.diag .eyebrow{margin:0}
+.diag-cause{margin:6px 0 0;font-size:1.1rem;color:var(--green)}
+.advice{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+.answer{margin:8px 0 0;padding:10px 12px;border-radius:10px;background:#e3efe0;font-size:.9rem;white-space:pre-line}
+.bars{display:grid;gap:10px;margin-top:14px}
+.bar-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr) auto;gap:12px;align-items:center;font-size:.88rem}
+.bar-row .meter{margin:0}
+.bar-value{font-weight:800;font-variant-numeric:tabular-nums}
+.bioimpact .stats{margin-top:14px}
+.verdict{display:inline-block;margin:10px 0 0;padding:6px 12px;border-radius:20px;font-weight:850;font-size:.88rem}
+.verdict.ok{background:#e3efe0;color:var(--green)}
+.verdict.ko{background:#f3e6e3;color:#8a3b2d}
+.facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;margin:0}
+.facts dt{color:var(--muted);font-size:.86rem}
+.facts dd{margin:0;font-weight:650}
+@media(max-width:860px){.bs-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.bar-row{grid-template-columns:1fr auto}.bar-row .meter{grid-column:1/-1;grid-row:2}.module .lesson{margin-left:0}.module .form-actions{padding-left:0}.facts{grid-template-columns:1fr}.facts dd{margin-bottom:6px}}
+.topnav a{white-space:nowrap}
+@media(max-width:760px){.topnav{flex-wrap:wrap;gap:6px 16px}}

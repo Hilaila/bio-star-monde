@@ -9,8 +9,10 @@ const PI_API = 'https://api.minepi.com/v2';
 // Codes de lot : « BSME- » suivi de 8 caractères sans 0, O, 1, I ni L, pour être recopiés sans erreur.
 const CODE_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
 const CODE_RE = new RegExp('^BSME-[' + CODE_ALPHABET + ']{8}$');
+// Codes d'attestation : « ATT- » suivi de 8 caractères du même alphabet.
+const ATTESTATION_RE = new RegExp('^ATT-[' + CODE_ALPHABET + ']{8}$');
 export const UNITS = ['kg', 't', 'sac', 'litre', 'unité', 'botte', 'plateau', 'tête'];
-const LIMITS = { plots: 50, lots: 500, events: 200, ownerEvents: 3000 };
+const LIMITS = { plots: 50, lots: 500, events: 200, ownerEvents: 3000, progress: 500, attestations: 50, openAdvice: 20, messages: 100, adminRows: 300 };
 
 export function newLotCode() {
   let out = '';
@@ -24,6 +26,37 @@ export function newLotCode() {
 export function normalizeCode(value) {
   const code = String(value || '').trim().toUpperCase();
   return CODE_RE.test(code) ? code : null;
+}
+function randomCode(length) {
+  let out = '';
+  while (out.length < length) {
+    for (const b of crypto.getRandomValues(new Uint8Array(length + 4))) {
+      if (b < 248 && out.length < length) out += CODE_ALPHABET[b % 31];
+    }
+  }
+  return out;
+}
+export function normalizeAttestationCode(value) {
+  const code = String(value || '').trim().toUpperCase();
+  return ATTESTATION_RE.test(code) ? code : null;
+}
+async function sha256Hex(text) {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Contenus de BioStar Academy (core/academy.json) : uniquement pour des formations du catalogue.
+export function validateAcademy(academy, products) {
+  const courses = (academy && academy.courses) || {};
+  for (const [id, course] of Object.entries(courses)) {
+    const product = products.find((p) => p.id === id);
+    if (!product || product.category !== 'Formation') throw new Error('Académie : formation inconnue dans le catalogue : ' + id);
+    if (!Array.isArray(course.modules) || !course.modules.length) throw new Error('Académie : aucun module pour ' + id);
+    for (const m of course.modules) {
+      if (typeof m.title !== 'string' || !m.title.trim() || !Array.isArray(m.points) || !m.points.length) throw new Error('Académie : module incomplet dans ' + id);
+    }
+  }
+  return courses;
 }
 
 class HttpError extends Error {
@@ -52,10 +85,11 @@ const round = (n) => Math.round(n * 1e7) / 1e7;
 
 // store : { kind, getOrder(paymentId), insertOrder(order), completeOrder(paymentId, txid), cancelOrder(paymentId),
 //           listOrders({ username?, limit }) } — méthodes asynchrones ; listOrders renvoie les plus récentes d'abord.
-export function createApi({ catalogue, store, piApiKey = '', sandbox = false, network = 'testnet', validationKey = '', adminUsernames = [], exposeErrors = false, fetchImpl, log = (...a) => console.error(...a) }) {
+export function createApi({ catalogue, academy = { courses: {} }, store, piApiKey = '', sandbox = false, network = 'testnet', validationKey = '', adminUsernames = [], exposeErrors = false, fetchImpl, log = (...a) => console.error(...a) }) {
   const doFetch = (...args) => (fetchImpl || globalThis.fetch)(...args);
   const products = validateCatalogue(catalogue);
   const getProduct = (id) => products.find((p) => p.id === id);
+  const courses = validateAcademy(academy, products);
   const admins = new Set(adminUsernames.map((u) => String(u).toLowerCase()));
   const isAdmin = (me) => admins.has(String(me.username).toLowerCase());
   // Vue d'une commande renvoyée au navigateur ; le nom d'utilisateur n'est ajouté que pour l'administration.
@@ -177,6 +211,89 @@ export function createApi({ catalogue, store, piApiKey = '', sandbox = false, ne
     return [...names];
   }
 
+  // Attestations obtenues, telles qu'affichées sur la page publique d'un lot : intitulé et date, sans code ni compte.
+  async function attestationsOf(username) {
+    return (await store.find('attestations', { owner: username }, LIMITS.attestations))
+      .filter((a) => a.status === 'valid')
+      .sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)))
+      .map((a) => ({ courseTitle: a.course_title, issuedAt: a.created_at }));
+  }
+
+  // --- BioStar Academy : progression, modules pratiques validés par le formateur, attestations ---
+  async function enrolledCourses(username) {
+    const ids = new Set();
+    for (const o of await store.listOrders({ username, limit: 200 })) {
+      if (o.username === username && o.status === 'completed' && courses[o.product_id]) ids.add(o.product_id);
+    }
+    return ids;
+  }
+  const progressId = async (owner, courseId, index) => 'p' + (await sha256Hex(owner + '|' + courseId + '|' + index)).slice(0, 32);
+  const attestationView = (a) => ({ code: a.id, courseId: a.course_id, courseTitle: a.course_title, issuedAt: a.created_at, hash: a.hash, status: a.status });
+  function moduleIndexOf(courseId, value) {
+    const index = Number(value);
+    if (!courses[courseId] || !Number.isInteger(index) || index < 0 || index >= courses[courseId].modules.length) throw new HttpError(400, 'Module inconnu.');
+    return index;
+  }
+  async function setProgress(owner, courseId, index, status) {
+    const id = await progressId(owner, courseId, index);
+    const now = new Date().toISOString();
+    const row = await store.get('progress', id);
+    if (row) await store.update('progress', id, { status, updated_at: now });
+    else {
+      try { await store.insert('progress', { id, owner, course_id: courseId, module_index: index, status, created_at: now, updated_at: now }); }
+      catch (e) { if (!e.duplicate) throw e; await store.update('progress', id, { status, updated_at: now }); }
+    }
+  }
+  async function progressMap(owner) {
+    const map = new Map();
+    for (const r of await store.find('progress', { owner }, LIMITS.progress)) map.set(r.course_id + '|' + Number(r.module_index), r.status);
+    return map;
+  }
+  async function attestationOf(owner, courseId) {
+    return (await store.find('attestations', { owner, course_id: courseId }, 1))[0] || null;
+  }
+  // Délivre l'attestation quand tous les modules du cours sont terminés (une seule par compte et par cours).
+  async function issueIfComplete(owner, courseId) {
+    const existing = await attestationOf(owner, courseId);
+    if (existing) return existing;
+    const map = await progressMap(owner);
+    const course = courses[courseId];
+    if (!course.modules.every((_, i) => map.get(courseId + '|' + i) === 'done')) return null;
+    const product = getProduct(courseId);
+    const now = new Date().toISOString();
+    for (let attempt = 0; attempt < 4; attempt++) {
+      const code = 'ATT-' + randomCode(8);
+      const row = { id: code, owner, course_id: courseId, course_title: product.name, hash: await sha256Hex([code, owner, courseId, now].join('|')), status: 'valid', created_at: now };
+      try { await store.insert('attestations', row); return row; } catch (e) {
+        if (!e.duplicate) throw e;
+        const again = await attestationOf(owner, courseId);
+        if (again) return again;
+      }
+    }
+    throw new HttpError(500, 'Création de l’attestation impossible.');
+  }
+  function courseView(courseId, map, enrolled, attestation, preview) {
+    const product = getProduct(courseId);
+    const course = courses[courseId];
+    const open = enrolled || preview;
+    const modules = course.modules.map((m, index) => ({
+      index, title: m.title, format: m.format || '', practical: Boolean(m.practical),
+      status: map.get(courseId + '|' + index) === 'todo' ? null : (map.get(courseId + '|' + index) || null),
+      points: open ? m.points : null
+    }));
+    return {
+      id: courseId, name: product.name, duration: product.duration || '', format: product.format || '', amount: product.amount,
+      enrolled, preview: !enrolled && preview, done: modules.filter((m) => m.status === 'done').length, total: modules.length,
+      attestation: attestation ? attestationView(attestation) : null, modules
+    };
+  }
+  const adviceView = (a, withUser) => {
+    const v = { id: a.id, crop: a.crop, symptom: a.symptom || '', cause: a.cause || '', message: a.message || '', status: a.status, answer: a.answer || '', createdAt: a.created_at, answeredAt: a.answered_at || null };
+    if (withUser) v.username = a.owner;
+    return v;
+  };
+  const byCreatedDesc = (a, b) => String(b.created_at).localeCompare(String(a.created_at));
+
   const routes = {
     'GET /api/config': async () => json(200, { sandbox, network }),
     'GET /api/products': async () => json(200, { products }),
@@ -291,7 +408,8 @@ export function createApi({ catalogue, store, piApiKey = '', sandbox = false, ne
       const me = await piMe(body.accessToken);
       const farm = await myFarm(me);
       const trainings = await trainingsOf(me.username);
-      if (!farm) return json(200, { ok: true, farm: null, plots: [], lots: [], trainings });
+      const attestations = await attestationsOf(me.username);
+      if (!farm) return json(200, { ok: true, farm: null, plots: [], lots: [], trainings, attestations });
       const [plots, lots, events] = await Promise.all([
         store.find('plots', { owner: me.username }, LIMITS.plots),
         store.find('lots', { owner: me.username }, LIMITS.lots),
@@ -304,7 +422,7 @@ export function createApi({ catalogue, store, piApiKey = '', sandbox = false, ne
         eventsByLot.get(e.lot_id).push(eventView(e));
       }
       return json(200, {
-        ok: true, farm: farmView(farm), trainings,
+        ok: true, farm: farmView(farm), trainings, attestations,
         plots: plots.sort((a, b) => String(a.created_at).localeCompare(String(b.created_at))).map(plotView),
         lots: lots.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).map((l) => ({
           code: l.id, product: l.product, quantity: l.quantity ?? null, unit: l.unit || '', plotId: l.plot_id || null,
@@ -432,8 +550,148 @@ export function createApi({ catalogue, store, piApiKey = '', sandbox = false, ne
         farm: farm ? { name: farm.name, country: farm.country, region: farm.region, locality: farm.locality || '', practices: farm.practices || '' } : null,
         plot: plot ? { name: plot.name, crop: plot.crop || '', soil: plot.soil || '' } : null,
         events: events.sort(byEventDate).map(eventView),
-        trainings: farm?.show_training ? await trainingsOf(lot.owner) : []
+        trainings: farm?.show_training ? await trainingsOf(lot.owner) : [],
+        attestations: farm?.show_training ? await attestationsOf(lot.owner) : []
       });
+    },
+
+    // --- BioStar Academy ---
+    'POST /api/academy': async (request) => {
+      const body = await readBody(request);
+      const me = await piMe(body.accessToken);
+      const [enrolled, map, attestations] = await Promise.all([
+        enrolledCourses(me.username), progressMap(me.username), store.find('attestations', { owner: me.username }, LIMITS.attestations)
+      ]);
+      const admin = isAdmin(me);
+      const byCourse = new Map(attestations.map((a) => [a.course_id, a]));
+      return json(200, {
+        ok: true,
+        courses: Object.keys(courses).map((id) => courseView(id, map, enrolled.has(id), byCourse.get(id), admin)),
+        attestations: attestations.sort(byCreatedDesc).map(attestationView)
+      });
+    },
+
+    'POST /api/academy/progress': async (request) => {
+      const body = await readBody(request);
+      const me = await piMe(body.accessToken);
+      const courseId = String(body.courseId || '');
+      if (!courses[courseId]) return json(404, { error: 'Formation inconnue.' });
+      const index = moduleIndexOf(courseId, body.moduleIndex);
+      if (!(await enrolledCourses(me.username)).has(courseId)) return json(403, { error: 'Inscrivez-vous à cette formation pour suivre ses modules.' });
+      const module = courses[courseId].modules[index];
+      const status = (await progressMap(me.username)).get(courseId + '|' + index) || null;
+      const attested = await attestationOf(me.username, courseId);
+      if (body.action === 'done') {
+        if (module.practical) return json(409, { error: 'Ce module pratique est validé par votre formateur : demandez la validation.' });
+        await setProgress(me.username, courseId, index, 'done');
+      } else if (body.action === 'request') {
+        if (!module.practical) return json(400, { error: 'Ce module ne demande pas de validation.' });
+        if (status !== 'done') await setProgress(me.username, courseId, index, 'pending');
+      } else if (body.action === 'undo') {
+        if (attested) return json(409, { error: 'Attestation délivrée : la progression de cette formation est figée.' });
+        if (module.practical && status === 'done') return json(409, { error: 'Un module pratique validé ne peut pas être annulé.' });
+        if (status) await setProgress(me.username, courseId, index, 'todo');
+      } else return json(400, { error: 'Action inconnue.' });
+      const attestation = await issueIfComplete(me.username, courseId);
+      const map = await progressMap(me.username);
+      return json(200, { ok: true, course: courseView(courseId, map, true, attestation, false), newAttestation: Boolean(attestation && !attested) });
+    },
+
+    // Vérification publique d'une attestation (code imprimé ou code QR).
+    'GET /api/attestation': async (request) => {
+      const code = normalizeAttestationCode(new URL(request.url).searchParams.get('code'));
+      if (!code) return json(400, { error: 'Code d’attestation invalide. Format attendu : ATT- suivi de 8 caractères.' });
+      const a = await store.get('attestations', code);
+      if (!a) return json(404, { error: 'Aucune attestation ne porte ce code.' });
+      return json(200, { ok: true, valid: a.status === 'valid', attestation: { ...attestationView(a), username: a.owner } });
+    },
+
+    // --- BioSmart : demandes d'avis à un conseiller ---
+    'POST /api/advice': async (request) => {
+      const body = await readBody(request);
+      const me = await piMe(body.accessToken);
+      const input = body.advice || {};
+      const row = {
+        crop: cleanText(input.crop, 40, 'culture ou animal', true),
+        symptom: cleanText(input.symptom, 200, 'symptôme'),
+        cause: cleanText(input.cause, 200, 'cause probable'),
+        message: cleanText(input.message, 1000, 'message', false, true)
+      };
+      if (!row.symptom && !row.message) return json(400, { error: 'Choisissez un symptôme ou décrivez le problème.' });
+      const mine = await store.find('advice', { owner: me.username }, LIMITS.adminRows);
+      if (mine.filter((a) => a.status === 'open').length >= LIMITS.openAdvice) return json(409, { error: 'Trop de demandes en attente : patientez jusqu’aux réponses du conseiller.' });
+      const advice = { id: crypto.randomUUID(), owner: me.username, ...row, status: 'open', created_at: new Date().toISOString() };
+      await store.insert('advice', advice);
+      return json(200, { ok: true, advice: adviceView(advice, false) });
+    },
+    'POST /api/advice/mine': async (request) => {
+      const body = await readBody(request);
+      const me = await piMe(body.accessToken);
+      const rows = (await store.find('advice', { owner: me.username }, LIMITS.adminRows)).sort(byCreatedDesc);
+      return json(200, { ok: true, advice: rows.map((a) => adviceView(a, false)) });
+    },
+
+    // Message à l'Institut, sans quitter l'application.
+    'POST /api/contact': async (request) => {
+      const body = await readBody(request);
+      const me = await piMe(body.accessToken);
+      const message = cleanText(body.message, 1000, 'message', true, true);
+      if (message.length < 5) return json(400, { error: 'Écrivez au moins quelques mots.' });
+      if ((await store.find('messages', { owner: me.username }, LIMITS.messages)).length >= LIMITS.messages) return json(409, { error: 'Nombre maximal de messages atteint.' });
+      await store.insert('messages', { id: crypto.randomUUID(), owner: me.username, message, created_at: new Date().toISOString() });
+      return json(200, { ok: true });
+    },
+
+    // --- Administration : validations pratiques, demandes de conseil, messages ---
+    'POST /api/admin/academy': async (request) => {
+      const body = await readBody(request);
+      const me = await piMe(body.accessToken);
+      if (!isAdmin(me)) return json(403, { error: 'Espace réservé au promoteur.' });
+      const [pending, advice, messages, attestations] = await Promise.all([
+        store.find('progress', { status: 'pending' }, LIMITS.progress),
+        store.find('advice', {}, LIMITS.adminRows),
+        store.find('messages', {}, LIMITS.adminRows),
+        store.count('attestations')
+      ]);
+      return json(200, {
+        ok: true, attestations,
+        validations: pending.sort((a, b) => String(a.updated_at).localeCompare(String(b.updated_at))).map((p) => {
+          const index = Number(p.module_index);
+          return { username: p.owner, courseId: p.course_id, courseTitle: getProduct(p.course_id)?.name || p.course_id, moduleIndex: index, moduleTitle: courses[p.course_id]?.modules[index]?.title || '', requestedAt: p.updated_at };
+        }),
+        advice: advice.sort(byCreatedDesc).map((a) => adviceView(a, true)),
+        messages: messages.sort(byCreatedDesc).map((m) => ({ id: m.id, username: m.owner, message: m.message, createdAt: m.created_at }))
+      });
+    },
+    'POST /api/admin/validate': async (request) => {
+      const body = await readBody(request);
+      const me = await piMe(body.accessToken);
+      if (!isAdmin(me)) return json(403, { error: 'Espace réservé au promoteur.' });
+      const owner = cleanText(body.username, 64, 'compte', true);
+      const courseId = String(body.courseId || '');
+      if (!courses[courseId]) return json(404, { error: 'Formation inconnue.' });
+      const index = moduleIndexOf(courseId, body.moduleIndex);
+      const row = await store.get('progress', await progressId(owner, courseId, index));
+      if (!row || row.status !== 'pending') return json(404, { error: 'Aucune demande de validation en attente pour ce module.' });
+      if (body.decision === 'approve') {
+        await setProgress(owner, courseId, index, 'done');
+        const attestation = await issueIfComplete(owner, courseId);
+        return json(200, { ok: true, attestation: attestation ? attestationView(attestation) : null });
+      }
+      if (body.decision === 'reject') { await setProgress(owner, courseId, index, 'todo'); return json(200, { ok: true, attestation: null }); }
+      return json(400, { error: 'Décision inconnue.' });
+    },
+    'POST /api/admin/answer': async (request) => {
+      const body = await readBody(request);
+      const me = await piMe(body.accessToken);
+      if (!isAdmin(me)) return json(403, { error: 'Espace réservé au promoteur.' });
+      if (!validId(body.id)) return json(400, { error: 'Demande invalide.' });
+      const answer = cleanText(body.answer, 2000, 'réponse', true, true);
+      const advice = await store.get('advice', body.id);
+      if (!advice) return json(404, { error: 'Demande introuvable.' });
+      const data = { status: 'answered', answer, answered_at: new Date().toISOString() };
+      await store.update('advice', advice.id, data);
+      return json(200, { ok: true, advice: adviceView({ ...advice, ...data }, true) });
     },
 
     'POST /api/payments/cancel': async (request) => {

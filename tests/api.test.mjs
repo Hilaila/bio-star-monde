@@ -195,6 +195,85 @@ check('administration : compteurs de la chaîne', async () => {
   const r = await post('/api/admin/orders', { accessToken: zougba });
   assert.deepEqual(r.body.chain, { farms: 2, plots: 2, lots: 1, events: 2 });
 });
+// --- BioStar Academy, BioSmart, contact, administration ---
+check('académie : leçons réservées aux inscrits', async () => {
+  let r = await post('/api/academy', { accessToken: bob });
+  assert.equal(r.status, 200); assert.equal(r.body.courses.length, 9);
+  assert.ok(r.body.courses.every((c) => !c.enrolled && c.modules.every((m) => m.points === null)), 'aucune leçon sans inscription');
+  r = await post('/api/academy', { accessToken: alice });
+  const f = r.body.courses.find((c) => c.id === 'fondamentaux-agrobio');
+  assert.equal(f.enrolled, true); assert.ok(f.modules[0].points.length > 0); assert.equal(f.done, 0);
+  assert.equal(r.body.courses.find((c) => c.id === 'apiculture').enrolled, false);
+  r = await post('/api/academy', { accessToken: zougba });
+  assert.ok(r.body.courses.every((c) => c.preview && c.modules[0].points), 'aperçu complet pour le promoteur');
+});
+check('académie : progression, module pratique et compte non inscrit', async () => {
+  const course = (await post('/api/academy', { accessToken: alice })).body.courses.find((c) => c.id === 'fondamentaux-agrobio');
+  const practical = course.modules.findIndex((m) => m.practical);
+  assert.equal((await post('/api/academy/progress', { accessToken: bob, courseId: 'fondamentaux-agrobio', moduleIndex: 0, action: 'done' })).status, 403);
+  assert.equal((await post('/api/academy/progress', { accessToken: alice, courseId: 'fondamentaux-agrobio', moduleIndex: practical, action: 'done' })).status, 409);
+  assert.equal((await post('/api/academy/progress', { accessToken: alice, courseId: 'fondamentaux-agrobio', moduleIndex: 99, action: 'done' })).status, 400);
+  for (const m of course.modules) {
+    if (m.practical) continue;
+    const r = await post('/api/academy/progress', { accessToken: alice, courseId: 'fondamentaux-agrobio', moduleIndex: m.index, action: 'done' });
+    assert.equal(r.status, 200, JSON.stringify(r.body)); assert.equal(r.body.course.attestation, null);
+  }
+  let r = await post('/api/academy/progress', { accessToken: alice, courseId: 'fondamentaux-agrobio', moduleIndex: 0, action: 'undo' });
+  assert.equal(r.body.course.modules[0].status, null);
+  r = await post('/api/academy/progress', { accessToken: alice, courseId: 'fondamentaux-agrobio', moduleIndex: 0, action: 'done' });
+  r = await post('/api/academy/progress', { accessToken: alice, courseId: 'fondamentaux-agrobio', moduleIndex: practical, action: 'request' });
+  assert.equal(r.body.course.modules[practical].status, 'pending'); assert.equal(r.body.course.done, course.total - 1);
+  ctx.practical = practical;
+});
+check('administration : validation pratique et attestation délivrée', async () => {
+  assert.equal((await post('/api/admin/academy', { accessToken: alice })).status, 403);
+  let r = await post('/api/admin/academy', { accessToken: zougba });
+  assert.equal(r.status, 200);
+  const v = r.body.validations.find((x) => x.username === 'alice' && x.courseId === 'fondamentaux-agrobio');
+  assert.ok(v); assert.equal(v.moduleIndex, ctx.practical); assert.ok(v.moduleTitle);
+  assert.equal((await post('/api/admin/validate', { accessToken: alice, username: 'alice', courseId: 'fondamentaux-agrobio', moduleIndex: ctx.practical, decision: 'approve' })).status, 403);
+  r = await post('/api/admin/validate', { accessToken: zougba, username: 'alice', courseId: 'fondamentaux-agrobio', moduleIndex: ctx.practical, decision: 'approve' });
+  assert.equal(r.status, 200, JSON.stringify(r.body)); assert.match(r.body.attestation.code, /^ATT-[2-9A-HJKMNP-Z]{8}$/);
+  ctx.att = r.body.attestation.code;
+  assert.equal((await post('/api/admin/validate', { accessToken: zougba, username: 'alice', courseId: 'fondamentaux-agrobio', moduleIndex: ctx.practical, decision: 'approve' })).status, 404, 'validation en double refusée');
+  r = await post('/api/academy', { accessToken: alice });
+  assert.equal(r.body.attestations.length, 1); assert.equal(r.body.courses.find((c) => c.id === 'fondamentaux-agrobio').attestation.code, ctx.att);
+  assert.equal((await post('/api/academy/progress', { accessToken: alice, courseId: 'fondamentaux-agrobio', moduleIndex: 0, action: 'undo' })).status, 409, 'progression figée après attestation');
+});
+check('attestation : vérification publique', async () => {
+  let r = await get('/api/attestation?code=' + ctx.att.toLowerCase());
+  assert.equal(r.status, 200); assert.equal(r.body.valid, true); assert.equal(r.body.attestation.username, 'alice');
+  assert.equal(r.body.attestation.courseTitle, 'Fondamentaux de l’agriculture et de l’élevage biologiques'); assert.match(r.body.attestation.hash, /^[0-9a-f]{64}$/);
+  assert.equal((await get('/api/attestation?code=ATT-1')).status, 400);
+  assert.equal((await get('/api/attestation?code=ATT-22222222')).status, 404);
+});
+check('traçabilité et exploitation : attestation affichée, sans code ni compte', async () => {
+  let r = await get('/api/trace?code=' + ctx.code);
+  assert.deepEqual(r.body.attestations.map((a) => a.courseTitle), ['Fondamentaux de l’agriculture et de l’élevage biologiques']);
+  assert.equal(JSON.stringify(r.body).includes('alice'), false); assert.equal(JSON.stringify(r.body).includes(ctx.att), false);
+  r = await post('/api/farm', { accessToken: alice });
+  assert.equal(r.body.attestations.length, 1);
+});
+check('BioSmart : demande au conseiller, réponse du promoteur', async () => {
+  assert.equal((await post('/api/advice', { accessToken: alice, advice: { crop: 'Tomate' } })).status, 400);
+  let r = await post('/api/advice', { accessToken: alice, advice: { crop: 'Tomate', symptom: 'Feuilles jaunes et enroulées', cause: 'Aleurodes', message: 'Depuis une semaine.' } });
+  assert.equal(r.status, 200, JSON.stringify(r.body)); const id = r.body.advice.id;
+  assert.equal(r.body.advice.username, undefined);
+  r = await post('/api/admin/academy', { accessToken: zougba });
+  assert.equal(r.body.advice[0].username, 'alice'); assert.equal(r.body.advice[0].status, 'open');
+  assert.equal((await post('/api/admin/answer', { accessToken: bob, id, answer: 'X' })).status, 403);
+  r = await post('/api/admin/answer', { accessToken: zougba, id, answer: 'Posez des pièges jaunes et traitez au neem tous les 7 jours.' });
+  assert.equal(r.status, 200); assert.equal(r.body.advice.status, 'answered');
+  r = await post('/api/advice/mine', { accessToken: alice });
+  assert.equal(r.body.advice.length, 1); assert.match(r.body.advice[0].answer, /pièges jaunes/);
+  assert.deepEqual((await post('/api/advice/mine', { accessToken: bob })).body.advice, []);
+});
+check('contact : message à l’Institut', async () => {
+  assert.equal((await post('/api/contact', { accessToken: bob, message: 'Bon' })).status, 400);
+  assert.equal((await post('/api/contact', { accessToken: bob, message: 'Bonjour, je souhaite rejoindre une ferme-école.' })).status, 200);
+  const r = await post('/api/admin/academy', { accessToken: zougba });
+  assert.equal(r.body.messages[0].username, 'bob'); assert.equal(r.body.attestations, 1);
+});
 check('jeton Pi invalide refusé', async () => {
   const r = await post('/api/pi-auth', { accessToken: 'tok-inconnu-xxxx' });
   assert.equal(r.status, 400);

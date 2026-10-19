@@ -52,10 +52,10 @@ function orderCard(o, admin) {
   card.append(el('p', 'order-ref', 'Référence : ' + o.paymentId));
   if (admin && o.txid) card.append(el('p', 'order-ref', 'Transaction : ' + o.txid));
   if (!admin && o.status === 'completed') {
-    const link = el('a', 'order-link', 'Écrire à l’Institut');
-    link.href = 'mailto:' + CONTACT_EMAIL
-      + '?subject=' + encodeURIComponent('Inscription : ' + o.name)
-      + '&body=' + encodeURIComponent('Compte Pi : @' + piUser.username + '\nOffre : ' + o.name + '\nRéférence du paiement : ' + o.paymentId + '\n');
+    // Message interne à l'application (sans redirection vers une messagerie extérieure), prérempli avec la référence.
+    const link = el('button', 'link-button', 'Écrire à l’Institut');
+    link.type = 'button';
+    link.addEventListener('click', () => writeToInstitute('Offre : ' + o.name + '\nRéférence du paiement : ' + o.paymentId + '\n'));
     card.append(link);
   }
   if (!admin && o.status === 'approved') card.append(el('p', 'order-note', 'Paiement en cours : il sera finalisé à votre prochaine connexion.'));
@@ -110,7 +110,9 @@ function refreshSpaces() {
   if (!piUser) return;
   loadMine();
   if (typeof loadFarm === 'function') loadFarm();
-  if (piIsAdmin) loadAdmin();
+  if (typeof loadAcademy === 'function') loadAcademy();
+  if (typeof loadAdvice === 'function') loadAdvice();
+  if (piIsAdmin) { loadAdmin(); if (typeof loadAdminAcademy === 'function') loadAdminAcademy(); }
 }
 function showSpaces() {
   $('#mes-inscriptions').hidden = false;
@@ -225,7 +227,7 @@ $('#nav-mine').addEventListener('click', async (event) => {
   if (piUser) $('#mes-inscriptions').scrollIntoView({ behavior: 'smooth' });
 });
 $('#refresh-mine').addEventListener('click', loadMine);
-$('#refresh-admin').addEventListener('click', loadAdmin);
+$('#refresh-admin').addEventListener('click', () => { loadAdmin(); if (typeof loadAdminAcademy === 'function') loadAdminAcademy(); });
 $('#admin-filter').addEventListener('change', renderAdmin);
 $('#year').textContent = new Date().getFullYear();
 initPi();
