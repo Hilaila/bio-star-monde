@@ -47,7 +47,7 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
 
   // Étape 1 : table et colonnes manquantes (première installation, nouvelle version ou installation interrompue).
   // Une colonne restée en échec est supprimée, puis recréée au passage suivant.
-  async function createMissing(table) {
+  async function createMissing(table, deadline = Infinity) {
     let current;
     try { current = await call('GET', tablePath(table)); } catch (e) {
       if (e.code !== 404) throw e;
@@ -57,6 +57,7 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
     }
     const existing = new Map((current.columns || []).map((c) => [c.key, c]));
     for (const c of TABLES[table].columns) {
+      if (Date.now() > deadline) return;
       const found = existing.get(c.body.key);
       if (found && (found.status === 'failed' || found.status === 'stuck')) {
         await call('DELETE', `${tablePath(table)}/columns/${c.body.key}`);
@@ -84,7 +85,9 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
     let pending = tables.filter((t) => !ready.has(t));
     while (pending.length) {
       for (const t of pending) {
-        await createMissing(t);
+        if (Date.now() > deadline) break;
+        await createMissing(t, deadline);
+        if (Date.now() > deadline) break;
         await checkTable(t);
       }
       pending = pending.filter((t) => !ready.has(t));
@@ -96,12 +99,12 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
 
   async function ensureTable(table) {
     if (ready.has(table)) return;
-    const result = await prepareTables([table], 12000);
+    const result = await prepareTables([table], 8000);
     if (!result.ready) throw new Error(`La table Appwrite « ${table} » est en cours de création : réessayez dans quelques secondes.`);
   }
 
   // Toutes les tables (adresse /api/setup) : renvoie { ready, pending } sans dépasser le budget de temps.
-  const prepare = ({ budgetMs = 10000 } = {}) => prepareTables(Object.keys(TABLES), budgetMs);
+  const prepare = ({ budgetMs = 7000 } = {}) => prepareTables(Object.keys(TABLES), budgetMs);
 
   function fromRow(table, row) {
     if (!row) return null;

@@ -42,7 +42,7 @@ export default async ({ req, res, log, error }) => {
   // Réponse toujours lisible (HTTP 200) : ok, tables en attente ou message d'erreur d'Appwrite (sans clé ni secret).
   if (req.method === 'GET' && req.path === '/api/setup') {
     try {
-      const result = await store.prepare({ budgetMs: 10000 });
+      const result = await store.prepare({ budgetMs: 7000 });
       if (result.ready) return res.json({ ok: true, message: 'Base prête : biostar (' + Object.keys(TABLES).join(', ') + ').' }, 200, { ...SECURITY, 'Cache-Control': 'no-store' });
       return res.json({ ok: false, pending: result.pending, message: 'Création en cours : rouvrez cette adresse dans 30 secondes.' }, 200, { ...SECURITY, 'Cache-Control': 'no-store' });
     } catch (e) {
