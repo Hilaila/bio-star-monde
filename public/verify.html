@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vérification de certificat · Bio Star Monde Eden</title>
+<meta name="theme-color" content="#26337F">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+  main{padding-block:24px 40px}
+  .verdict{display:flex;flex-direction:column;gap:14px}
+  .seal{display:flex;align-items:center;gap:12px}
+  .seal svg{width:44px;height:44px;flex:0 0 auto}
+  .ok{color:var(--neem)} .ko{color:var(--alert)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in gutter">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect class="m-bg" width="32" height="32" rx="9"/><path class="m-stem" d="M16 25v-9"/><path class="m-dark" d="M16 17c-4.5 0-7-2.7-7-7 4.5 0 7 2.7 7 7z"/><path class="m-light" d="M16 14c0-4.5 2.7-7 7-7 0 4.5-2.7 7-7 7z"/></svg>
+      <div><p class="brand-name">Bio Star Monde Eden</p><p class="brand-sub">Vérification de certificat</p></div>
+    </div>
+  </div>
+  <div class="stripe" aria-hidden="true"></div>
+</header>
+<main class="gutter">
+  <div class="inner stack">
+    <div class="card verdict" id="out" aria-live="polite"><p class="muted">Vérification en cours…</p></div>
+    <p class="note">Cette page interroge directement le registre des certificats de l'institut. Un certificat valide affiche le nom d'utilisateur Pi de son titulaire, le parcours suivi et la date de délivrance.</p>
+    <a class="btn btn-ghost" href="/">Ouvrir l'application</a>
+  </div>
+</main>
+<script>
+(function () {
+  var out = document.getElementById("out");
+  var m = location.pathname.match(/\/verify\/([A-Za-z0-9-]+)/);
+  var code = m ? m[1] : new URLSearchParams(location.search).get("code");
+  function esc(s) { return String(s || "").replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  var okIcon = '<svg class="ok" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor" opacity=".15"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var koIcon = '<svg class="ko" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor" opacity=".15"/><path d="M8 8l8 8M16 8l-8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+  if (!code) { out.innerHTML = '<div class="seal">' + koIcon + '<h1>Aucun code fourni</h1></div><p>Scannez le QR code imprimé sur le certificat.</p>'; return; }
+  fetch("/api/certificates/" + encodeURIComponent(code.toUpperCase()))
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (!d.valid) {
+        out.innerHTML = '<div class="seal">' + koIcon + '<h1>Certificat introuvable</h1></div><p>Le code <span class="mono">' + esc(code) + '</span> ne correspond à aucun certificat valide de l\'institut.</p>';
+        return;
+      }
+      var c = d.certificate;
+      var date = new Date(c.issuedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+      out.innerHTML = '<div class="seal">' + okIcon + '<div><p class="eyebrow">Certificat valide</p><h1>' + esc(c.courseTitle) + '</h1></div></div>' +
+        '<dl class="kv"><div><dt>Titulaire</dt><dd>@' + esc(c.username) + ' (compte Pi)</dd></div><div><dt>Délivré le</dt><dd>' + esc(date) + '</dd></div><div><dt>Code</dt><dd class="mono">' + esc(c.code) + '</dd></div><div><dt>Délivré par</dt><dd>' + esc(d.institute) + '</dd></div></dl>' +
+        '<div class="hashbox"><p class="eyebrow">Empreinte SHA-256</p><p class="mono hash">' + esc(c.hash) + '</p></div>';
+    })
+    .catch(function () { out.innerHTML = '<p>Le registre ne répond pas. Vérifiez votre connexion puis rechargez la page.</p>'; });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+{
+  "institute": {
+    "name": "Institut international moderne innovant biologique d'agriculture et d'élevage",
+    "app": "Bio Star Monde Eden",
+    "seat": "Burkina Faso",
+    "promoter": { "name": "ZOUGBA Nathanaël", "city": "Lomé, Togo", "whatsapp": "+226 62 31 02 95" },
+    "goals": [
+      { "key": "learners", "label": "Acteurs formés et certifiés", "target": 100000 },
+      { "key": "farms", "label": "Fermes-écoles physiques et virtuelles", "target": 1000 },
+      { "key": "innovations", "label": "Innovations validées et diffusées", "target": 5 },
+      { "key": "hectares", "label": "Hectares restaurés", "target": 10000 }
+    ]
+  },
+  "farms": [
+    { "name": "Ferme-école de Loumbila", "country": "Burkina Faso", "focus": "Maraîchage bio · apiculture", "kind": "Physique" },
+    { "name": "Ferme-école de Bobo-Dioulasso", "country": "Burkina Faso", "focus": "Agroforesterie · karité · aviculture", "kind": "Physique" },
+    { "name": "Ferme-école de Tsévié", "country": "Togo", "focus": "Maraîchage · ananas · pisciculture", "kind": "Physique" }
+  ],
+  "languages": ["Français", "Mooré", "Éwé", "Dioula"],
+  "courses": [
+    {
+      "id": "maraichage",
+      "code": "MB1",
+      "title": "Technicien en maraîchage biologique",
+      "level": "Certificat · niveau 1",
+      "hours": 48,
+      "modules": [
+        { "title": "Sol vivant et compostage", "format": "Audio 14 min", "practical": false, "points": [
+          "Un sol vivant contient des vers de terre, des champignons et des bactéries qui nourrissent les plantes.",
+          "Le compost se fait avec 2 parts de matières sèches (tiges, paille) pour 1 part de matières vertes ou de fumier.",
+          "Le tas reste humide comme une éponge essorée et se retourne toutes les 3 semaines.",
+          "Un compost mûr est sombre, friable et sent le sous-bois : il est prêt en 3 mois environ."
+        ] },
+        { "title": "Semences locales et pépinière", "format": "Vidéo 9 min", "practical": false, "points": [
+          "Les semences locales sont adaptées au climat et peuvent être ressemées d'une saison à l'autre.",
+          "La pépinière se fait sur une planche ombragée, avec de la terre mélangée à du compost tamisé.",
+          "Semez en lignes espacées de 10 cm et arrosez en pluie fine, le matin et le soir.",
+          "Repiquez la tomate ou le chou à 4 ou 5 vraies feuilles, en fin de journée."
+        ] },
+        { "title": "Bio-intrants : neem, piment-ail, engrais liquide", "format": "Pratique en ferme-école", "practical": true, "points": [
+          "Préparez l'extrait de neem à 5 % : 50 g de graines pilées par litre d'eau, 12 à 24 h de macération.",
+          "Le répulsif piment-ail s'alterne avec le neem pour éviter que les ravageurs s'y habituent.",
+          "L'engrais liquide au fumier se dilue à 1 volume pour 9 volumes d'eau avant l'arrosage.",
+          "Cette séance pratique est validée par le formateur de votre ferme-école."
+        ] },
+        { "title": "Irrigation économe et paillage", "format": "Audio 11 min", "practical": false, "points": [
+          "Arrosez tôt le matin ou en fin d'après-midi, au pied des plantes, pour limiter l'évaporation.",
+          "Le paillage (paille, herbes sèches, feuilles) garde l'humidité et freine les mauvaises herbes.",
+          "Le goutte-à-goutte avec un fût surélevé économise l'eau sur les petites parcelles.",
+          "Touchez la terre avant d'arroser : une planche paillée demande moins d'eau."
+        ] },
+        { "title": "Rotations et calendrier cultural", "format": "Fiche illustrée", "practical": false, "points": [
+          "Ne cultivez pas la même famille de plantes au même endroit deux saisons de suite.",
+          "Alternez légumes-feuilles (chou, laitue), légumes-fruits (tomate, piment) et légumineuses (niébé, haricot).",
+          "Les légumineuses enrichissent le sol en azote pour la culture suivante.",
+          "Notez dans un cahier ce qui a été planté sur chaque planche, saison après saison."
+        ] },
+        { "title": "Récolte, conservation et vente", "format": "Audio 12 min", "practical": false, "points": [
+          "Récoltez aux heures fraîches et mettez les légumes à l'ombre aussitôt.",
+          "Triez par taille et par qualité : un lot homogène se vend mieux.",
+          "Les claies de séchage et les jarres à double paroi prolongent la conservation.",
+          "Tenez un registre des ventes pour connaître vos meilleurs produits et vos meilleurs clients."
+        ] }
+      ]
+    },
+    {
+      "id": "elevage",
+      "code": "ELV",
+      "title": "Éleveur agro-écologique",
+      "level": "Certificat · niveau 1",
+      "hours": 36,
+      "modules": [
+        { "title": "Habitat et hygiène du poulailler", "format": "Vidéo 8 min", "practical": false, "points": [
+          "Le poulailler doit être aéré, sec, à l'abri de la pluie et des prédateurs.",
+          "Comptez au plus 5 poules adultes par mètre carré au sol.",
+          "Changez la litière dès qu'elle est humide ; nettoyez abreuvoirs et mangeoires chaque jour.",
+          "Un bac de cendre à l'entrée limite l'arrivée des maladies."
+        ] },
+        { "title": "Provende locale et bio-alimentation", "format": "Pratique en ferme-école", "practical": true, "points": [
+          "Une provende équilibrée associe une céréale (maïs, sorgho), des protéines (tourteau, soja grillé) et des minéraux (coquilles broyées).",
+          "Les termites et l'azolla sont des compléments protéiques peu coûteux.",
+          "Conservez les aliments au sec pour éviter les moisissures.",
+          "Cette séance de fabrication est validée par le formateur de votre ferme-école."
+        ] },
+        { "title": "Prévention et santé animale naturelle", "format": "Audio 15 min", "practical": false, "points": [
+          "La vaccination contre la maladie de Newcastle est la première protection des volailles.",
+          "Isolez tout animal malade et appelez l'auxiliaire d'élevage ou le vétérinaire.",
+          "Les plantes locales peuvent soutenir la santé des animaux, mais ne remplacent ni les vaccins ni les soins vétérinaires.",
+          "Notez chaque vaccination et chaque soin dans le carnet de l'élevage."
+        ] },
+        { "title": "Fumure : relier élevage et cultures", "format": "Fiche illustrée", "practical": false, "points": [
+          "Le fumier et les fientes compostés nourrissent le sol des parcelles.",
+          "Ne mettez jamais de fumier frais au pied des légumes : compostez-le d'abord.",
+          "Les résidus de culture deviennent aliment ou litière pour les animaux.",
+          "Ce cycle réduit les achats d'engrais et d'aliments."
+        ] }
+      ]
+    },
+    {
+      "id": "agroforesterie",
+      "code": "AGF",
+      "title": "Agroforesterie et restauration des sols",
+      "level": "Certificat · niveau 2",
+      "hours": 40,
+      "modules": [
+        { "title": "Zaï et demi-lunes", "format": "Pratique sur parcelle", "practical": true, "points": [
+          "Le zaï consiste à creuser des trous de 20 à 30 cm de diamètre et 10 à 15 cm de profondeur, espacés d'environ 80 cm.",
+          "Chaque trou reçoit une poignée de compost ou de fumier avant les pluies.",
+          "Les demi-lunes, ouvertes vers le haut de la pente, retiennent l'eau de ruissellement sur les sols encroûtés.",
+          "La réalisation sur parcelle est validée par le formateur."
+        ] },
+        { "title": "Régénération naturelle assistée (RNA)", "format": "Audio 13 min", "practical": false, "points": [
+          "La RNA protège et taille les jeunes arbres qui repoussent naturellement dans les champs.",
+          "Gardez 2 ou 3 tiges vigoureuses par souche et coupez les autres.",
+          "Le karité, le néré et le Faidherbia albida nourrissent le sol et donnent des revenus.",
+          "Marquez les arbres protégés pour qu'ils soient épargnés au labour."
+        ] },
+        { "title": "Haies vives et brise-vent", "format": "Vidéo 10 min", "practical": false, "points": [
+          "Une haie vive protège les cultures du vent, des animaux en divagation et de l'érosion.",
+          "Choisissez des espèces adaptées à la zone, par exemple le jujubier au Sahel ou le Gliricidia au Sud-Togo.",
+          "Plantez en début de saison des pluies et protégez les jeunes plants la première année.",
+          "Un brise-vent freine le vent sur une distance d'environ 10 fois sa hauteur."
+        ] },
+        { "title": "Mesurer le carbone du sol", "format": "Pratique + application", "practical": true, "points": [
+          "Délimitez la parcelle et notez les pratiques appliquées.",
+          "Un prélèvement de sol entre 0 et 30 cm, au même endroit chaque année, montre l'évolution de la matière organique.",
+          "Le simulateur Carbone de l'application donne une estimation indicative.",
+          "La mesure est faite avec le formateur, qui la valide."
+        ] }
+      ]
+    },
+    {
+      "id": "entreprendre",
+      "code": "ENT",
+      "title": "Agro-entrepreneuriat et leadership",
+      "level": "Diplôme · niveau 3",
+      "hours": 60,
+      "modules": [
+        { "title": "Plan d'affaires d'une micro-ferme", "format": "Atelier", "practical": true, "points": [
+          "Décrivez vos produits, vos clients et vos saisons de vente.",
+          "Calculez vos coûts (semences, intrants, eau, main-d'œuvre) et votre prix de vente.",
+          "Prévoyez la trésorerie mois par mois : quand l'argent sort, quand il rentre.",
+          "Le plan d'affaires est présenté et validé pendant l'atelier."
+        ] },
+        { "title": "Coopérative et gouvernance", "format": "Audio 16 min", "practical": false, "points": [
+          "Une coopérative permet d'acheter, de stocker et de vendre ensemble à meilleur prix.",
+          "Le règlement intérieur fixe les droits, les devoirs et le partage des excédents.",
+          "Les comptes sont présentés chaque année à l'assemblée générale.",
+          "Dans l'espace OHADA, les coopératives relèvent de l'Acte uniforme relatif au droit des sociétés coopératives."
+        ] },
+        { "title": "Certification bio et garantie participative", "format": "Vidéo 12 min", "practical": false, "points": [
+          "La certification par un organisme tiers est exigée pour l'export et certains marchés.",
+          "Le Système participatif de garantie (SPG) repose sur le contrôle entre producteurs, consommateurs et techniciens.",
+          "Tenez un cahier des pratiques : intrants utilisés, dates, parcelles.",
+          "Le passeport des lots du Marché s'appuie sur ces informations."
+        ] },
+        { "title": "Marketing vert et vente en ligne", "format": "Atelier", "practical": true, "points": [
+          "Racontez l'histoire de votre ferme : vos pratiques bio sont un argument de vente.",
+          "Une photo nette, un prix clair et une unité de vente précise rassurent l'acheteur.",
+          "Publiez vos offres sur le Marché de l'application, avec paiement en Pi.",
+          "La campagne de vente préparée est validée pendant l'atelier."
+        ] }
+      ]
+    }
+  ]
+}

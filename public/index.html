@@ -2,132 +2,228 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#10251b">
-<meta name="description" content="Bio Star Monde Éden — agro-biologie, intelligence artificielle, formation, marché et traçabilité reliés en une seule chaîne, du savoir au marché.">
-<title>Bio Star Monde Éden</title>
-<link rel="stylesheet" href="/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bio Star Monde Eden</title>
+<meta name="description" content="Formation agro-biologique, bio-intrants, diagnostic des cultures et marché bio payé en Pi. Institut international moderne innovant biologique d'agriculture et d'élevage.">
+<meta name="theme-color" content="#26337F">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/assets/app.css">
 <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-<script src="/config.js"></script>
-<script defer src="/common.js"></script>
-<script defer src="/qr.js"></script>
-<script defer src="/app.js"></script>
-<script defer src="/farm.js"></script>
 </head>
 <body>
-<header class="topbar">
-  <a class="brand" href="/" aria-label="Bio Star Monde Éden, accueil"><span class="mark">BS</span><span>Bio Star Monde Éden<small>AGROÉCOLOGIE · FORMATION · TERRE</small></span></a>
-  <nav class="topnav" aria-label="Espaces">
-    <a id="nav-mine" href="#mes-inscriptions">Mes inscriptions</a>
-    <a id="nav-farm" href="#exploitation" hidden>Mon exploitation</a>
-    <a id="nav-admin" href="#administration" hidden>Administration</a>
-  </nav>
-  <button id="connect" class="button secondary" type="button">Connexion Pi</button>
-</header>
-<main>
-  <section class="hero">
-    <div class="eyebrow">AGRO-BIOLOGIE • INTELLIGENCE ARTIFICIELLE • FORMATION • MARCHÉ • TRAÇABILITÉ</div>
-    <h1>La vie du sol,<br><em>la richesse de demain.</em></h1>
-    <p>Institut international de formation, de recherche et de production en agriculture et élevage biologiques, basé au Burkina Faso.</p>
-    <p class="motto">« Former, innover, produire et commercialiser pour un monde agro-biologique durable »</p>
-    <div class="hero-actions"><a class="button" href="#chaine">Découvrir la chaîne</a><a class="button secondary" href="#catalogue">Les formations</a><span id="status" role="status">Phase de test (Testnet)</span></div>
-  </section>
-  <section class="intro">
-    <div><p class="eyebrow">NOTRE MISSION</p><h2>Former une nouvelle génération d’agriculteurs et d’éleveurs responsables.</h2></div>
-    <p>Bio Star Monde Éden forme, innove, produit et commercialise à partir des ressources et des savoirs locaux de chaque territoire, au service d’une sécurité alimentaire durable et de la restauration des sols.</p>
-  </section>
-  <section id="chaine" class="chain">
-    <div class="section-head"><div><p class="eyebrow">UNE CHAÎNE CONNECTÉE</p><h2>Du savoir au marché, chaque activité nourrit la suivante.</h2></div></div>
-    <p class="chain-intro">Plus qu’un catalogue de formations ou une boutique agricole : un seul compte Pi relie la formation du producteur, son exploitation, ses lots, ses ventes et son impact sur les sols.</p>
-    <ol class="steps">
-      <li class="step"><span class="step-n">1</span><p class="step-mod">BioStar Academy</p><h3>Se former</h3><p>Formations et suivi de la progression. L’attestation suit le producteur dans toute la chaîne.</p><p class="feeds">Alimente : la fiche de l’exploitation et la fiche du produit</p><span class="state on">Inscriptions ouvertes</span></li>
-      <li class="step"><span class="step-n">2</span><p class="step-mod">BioSmart</p><h3>Choisir</h3><p>Fiches d’orientation agricole, puis conseils assistés par l’intelligence artificielle, selon le sol, la saison et la région.</p><p class="feeds">Alimente : le plan de culture de l’exploitation</p><span class="state">En préparation</span></li>
-      <li class="step"><span class="step-n">3</span><p class="step-mod">BioFarm Manager · BioLab</p><h3>Produire</h3><p>Fiche d’exploitation, parcelles, intrants biologiques et essais documentés.</p><p class="feeds">Alimente : les lots tracés</p><span class="state on">Fiche d’exploitation ouverte</span></li>
-      <li class="step"><span class="step-n">4</span><p class="step-mod">BioTrace</p><h3>Tracer</h3><p>Chaque lot reçoit un identifiant et un historique vérifiable, de la parcelle à l’acheteur.</p><p class="feeds">Alimente : le marché et la certification</p><span class="state on">Lots et codes QR ouverts</span></li>
-      <li class="step"><span class="step-n">5</span><p class="step-mod">BioMarket</p><h3>Vendre</h3><p>Chaque produit montre son origine, sa traçabilité et la formation de son producteur. Paiement en Pi.</p><p class="feeds">Alimente : les recettes et le bilan d’impact</p><span class="state">En préparation</span></li>
-      <li class="step"><span class="step-n">6</span><p class="step-mod">BioImpact</p><h3>Mesurer</h3><p>Compost, biochar, arbres plantés, sols restaurés : l’impact de chaque exploitation s’additionne.</p><p class="feeds">Alimente : les rapports aux partenaires</p><span class="state">En préparation</span></li>
-    </ol>
-    <p class="chain-foot"><strong>BioPartners</strong> relie la chaîne aux coopératives, ONG et institutions. Le <strong>Registre</strong> permet à chacun d’exporter ses données.</p>
-  </section>
-  <section id="catalogue" class="catalogue">
-    <div class="section-head"><div><p class="eyebrow">CATALOGUE</p><h2>Formations et services</h2></div><span class="pill">Propositions à valider · Testnet</span></div>
-    <div id="products" class="cards"><p>Chargement du catalogue…</p></div>
-  </section>
-  <section id="mes-inscriptions" class="space" hidden>
-    <div class="section-head"><div><p class="eyebrow">MON ESPACE</p><h2>Mes inscriptions</h2></div><button id="refresh-mine" class="button secondary" type="button">Actualiser</button></div>
-    <p class="hint">Après confirmation, écrivez à l’Institut en indiquant la référence du paiement : il vous communique les dates, le lieu ou le lien de la session.</p>
-    <div id="my-orders" class="orders"></div>
-  </section>
-  <section id="exploitation" class="space farm" hidden>
-    <div class="section-head"><div><p class="eyebrow">BIOFARM MANAGER · BIOTRACE</p><h2>Mon exploitation</h2></div><button id="refresh-farm" class="button secondary" type="button">Actualiser</button></div>
-    <p class="hint">La fiche de votre exploitation relie vos formations, vos parcelles et vos lots. Chaque lot reçoit un code et une page publique de traçabilité, avec son code QR.</p>
-    <p id="farm-status" class="empty" role="status"></p>
-    <div id="farm-card" class="panel" hidden></div>
-    <form id="farm-form" class="panel form" hidden novalidate>
-      <h3 class="form-title" id="farm-form-title">Créer la fiche de mon exploitation</h3>
-      <div class="grid2">
-        <label>Nom de l’exploitation *<input name="name" maxlength="120" required autocomplete="off"></label>
-        <label>Pays *<input name="country" maxlength="60" required value="Burkina Faso"></label>
-        <label>Région *<input name="region" maxlength="80" required></label>
-        <label>Village ou commune<input name="locality" maxlength="80"></label>
-        <label>Superficie totale (ha)<input name="areaHa" type="number" min="0" step="0.01" inputmode="decimal"></label>
-      </div>
-      <label>Pratiques biologiques<textarea name="practices" maxlength="500" rows="3" placeholder="Compost, rotation des cultures, haies vives, biopesticides…"></textarea></label>
-      <label class="check"><input type="checkbox" name="showTraining"> Afficher mes formations Bio Star Monde Éden sur la page publique de mes lots</label>
-      <p class="form-note">La page publique d’un lot affiche le nom de l’exploitation, le pays, la région, la localité et les pratiques. N’y inscrivez ni numéro de téléphone ni coordonnées GPS.</p>
-      <div class="form-actions"><button class="button" type="submit">Enregistrer</button><button class="button secondary" type="button" id="farm-cancel" hidden>Annuler</button></div>
-    </form>
-    <div id="farm-content" hidden>
-      <h3 class="subhead">Parcelles</h3>
-      <div id="plots" class="orders"></div>
-      <details class="panel fold" id="plot-panel"><summary id="plot-summary">Ajouter une parcelle</summary>
-        <form id="plot-form" class="form" novalidate>
-          <input type="hidden" name="id" value="">
-          <div class="grid2">
-            <label>Nom de la parcelle *<input name="name" maxlength="80" required placeholder="Parcelle nord"></label>
-            <label>Superficie (ha)<input name="areaHa" type="number" min="0" step="0.01" inputmode="decimal"></label>
-            <label>Type de sol<input name="soil" maxlength="80" list="soils"></label>
-            <label>Culture actuelle<input name="crop" maxlength="80" placeholder="Tomate, sorgho, manguiers…"></label>
-          </div>
-          <datalist id="soils"><option value="Sableux"></option><option value="Argileux"></option><option value="Limoneux"></option><option value="Argilo-sableux"></option><option value="Gravillonnaire"></option><option value="Ferrugineux"></option></datalist>
-          <div class="form-actions"><button class="button" type="submit">Enregistrer la parcelle</button><button class="button secondary" type="button" id="plot-cancel" hidden>Annuler</button></div>
-        </form>
-      </details>
-      <h3 class="subhead">Lots tracés</h3>
-      <div id="lots" class="orders"></div>
-      <details class="panel fold" id="lot-panel"><summary>Créer un lot</summary>
-        <form id="lot-form" class="form" novalidate>
-          <div class="grid2">
-            <label>Produit *<input name="product" maxlength="120" required placeholder="Tomates fraîches, miel, compost…"></label>
-            <label>Parcelle<select name="plotId"><option value="">Sans parcelle</option></select></label>
-            <label>Quantité<input name="quantity" type="number" min="0" step="0.01" inputmode="decimal"></label>
-            <label>Unité<select name="unit"><option value="">—</option><option>kg</option><option>t</option><option>sac</option><option>litre</option><option>unité</option><option>botte</option><option>plateau</option><option>tête</option></select></label>
-          </div>
-          <div class="form-actions"><button class="button" type="submit">Créer le lot et son code</button></div>
-        </form>
-      </details>
+
+<header class="top">
+  <div class="top-in gutter">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect class="m-bg" width="32" height="32" rx="9"/><path class="m-stem" d="M16 25v-9"/><path class="m-dark" d="M16 17c-4.5 0-7-2.7-7-7 4.5 0 7 2.7 7 7z"/><path class="m-light" d="M16 14c0-4.5 2.7-7 7-7 0 4.5-2.7 7-7 7z"/></svg>
+      <div><p class="brand-name">Bio Star Monde Eden</p><p class="brand-sub">Institut international d'agro-biologie</p></div>
     </div>
-  </section>
-  <section id="administration" class="space admin" hidden>
-    <div class="section-head"><div><p class="eyebrow">RÉSERVÉ AU PROMOTEUR</p><h2>Administration</h2></div>
-      <div class="tools"><label for="admin-filter" class="sr-only">Filtrer</label><select id="admin-filter"><option value="all">Toutes</option><option value="completed">Confirmées</option><option value="approved">En attente</option><option value="cancelled">Annulées</option></select><button id="refresh-admin" class="button secondary" type="button">Actualiser</button></div></div>
-    <div id="admin-summary" class="stats"></div>
-    <h3 class="subhead">Recettes par offre</h3>
-    <div id="admin-products" class="orders compact"></div>
-    <h3 class="subhead">Toutes les inscriptions</h3>
-    <div id="admin-orders" class="orders"></div>
-  </section>
-  <section class="notice"><strong>À savoir</strong><p>Pendant la phase de test, les montants sont exprimés en Pi de test, sans valeur. Les formations, durées et prix définitifs seront fixés par le promoteur avant l’ouverture sur le Mainnet. Les produits de la ferme-école seront proposés lorsqu’elle produira.</p></section>
-  <section class="about">
-    <div><p class="eyebrow">NOS QUATRE AXES</p><h2>Formation, recherche, production et services.</h2></div>
-    <p>Formation et éducation : modules certifiants et ferme-école pédagogique. Recherche et innovation : biopesticides, biofertilisants, biochar, santé animale naturelle. Production et démonstration : maraîchage, apiculture, aviculture, pisciculture. Services et partenariats : conseil aux coopératives et appui à la certification biologique.</p>
-  </section>
+    <div class="top-right">
+      <span class="net" id="offline-pill" hidden><i></i>Hors ligne</span>
+      <button class="auth" id="auth-btn" type="button" data-act="account">Connexion Pi</button>
+    </div>
+  </div>
+  <div class="stripe" aria-hidden="true"></div>
+</header>
+
+<div class="banner gutter" id="pi-banner" hidden>
+  <p class="banner-in">Mode consultation. Ouvrez Bio Star Monde Eden dans Pi Browser pour vous connecter avec votre compte Pi, suivre vos parcours et payer en Pi.</p>
+</div>
+
+<main class="gutter">
+<div class="inner">
+
+<!-- ACCUEIL -->
+<section class="screen" id="s-accueil" aria-label="Accueil">
+  <div class="hero">
+    <p class="eyebrow" id="season-month"></p>
+    <h1 id="season-name">Calendrier agricole</h1>
+    <p class="hero-focus">Priorité du moment : <b id="season-focus"></b></p>
+    <div class="chips" id="regions" role="group" aria-label="Zone agro-climatique"></div>
+    <div class="cal" id="cal" role="img" aria-label="Calendrier agricole de l'année"></div>
+    <div class="cal-legend" id="cal-legend"></div>
+    <p class="tip" id="season-tip"></p>
+    <button class="btn btn-primary" type="button" data-go="biolab" data-panel="rec">Préparer mes bio-intrants</button>
+  </div>
+
+  <div class="group">
+    <div class="group-head"><h2>Ma formation</h2><button class="link" type="button" data-go="academie">Tout voir</button></div>
+    <div class="card" id="home-course"></div>
+  </div>
+
+  <div class="group">
+    <h2>Raccourcis</h2>
+    <div class="quick">
+      <button class="q" type="button" data-go="biolab" data-panel="diag"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/><path d="M10.5 13.5v-2.5c0-1.7 1.3-3 3-3 0 1.7-1.3 3-3 3"/></svg><b>Diagnostiquer</b><span>une plante ou un animal</span></button>
+      <button class="q" type="button" data-go="biolab" data-panel="rec"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6"/><path d="M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/></svg><b>Calculer</b><span>un bio-intrant pour ma surface</span></button>
+      <button class="q" type="button" data-go="marche" data-act="sell"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h18l-2 11H5z"/><path d="M8 9l4-6 4 6"/><path d="M9 13v4M15 13v4"/></svg><b>Vendre</b><span>ma récolte en Pi</span></button>
+      <button class="q" type="button" data-go="carbone"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-8"/><path d="M12 13c-4 0-7-3-7-7 4 0 7 3 7 7z"/><path d="M12 11c0-4 3-7 7-7 0 4-3 7-7 7z"/></svg><b>Estimer</b><span>le carbone de mes parcelles</span></button>
+    </div>
+  </div>
+
+  <div class="group">
+    <h2>L'institut aujourd'hui</h2>
+    <div class="card goals" id="goals"></div>
+  </div>
+
+  <div class="group">
+    <h2>Fermes-écoles du réseau</h2>
+    <ul class="list card" id="farms"></ul>
+  </div>
+
+  <div class="group">
+    <h2>Contact du promoteur</h2>
+    <div class="card contact">
+      <div><p class="eyebrow">Promoteur</p><h3 id="promo-name"></h3><p class="muted small" id="promo-city"></p></div>
+      <div class="wa"><span class="small muted">WhatsApp</span><span class="mono" id="wa-num"></span></div>
+      <div class="contact-actions">
+        <button class="btn btn-primary" type="button" data-act="message">Écrire au promoteur</button>
+        <button class="btn btn-ghost" type="button" data-act="copy-wa">Copier le numéro</button>
+      </div>
+    </div>
+  </div>
+
+  <nav class="footer" aria-label="Informations légales">
+    <a href="/privacy.html">Politique de confidentialité</a>
+    <a href="/terms.html">Conditions d'utilisation</a>
+    <span>Version 1.0.0</span>
+  </nav>
+</section>
+
+<!-- ACADÉMIE -->
+<section class="screen" id="s-academie" aria-label="Académie" hidden>
+  <div class="screen-head">
+    <p class="eyebrow">Axe 1 · Formation et éducation</p>
+    <h1>Académie</h1>
+    <p class="lead">Parcours certifiants en audio, en vidéo et en pratique sur le terrain. Touchez un module pour lire la leçon.</p>
+  </div>
+  <div class="group">
+    <h3>Langue des leçons audio</h3>
+    <div class="chips" id="langs"></div>
+    <p class="note">Les enregistrements audio sont en cours de production dans les fermes-écoles. Le texte de chaque leçon est disponible dès maintenant, même sans réseau.</p>
+  </div>
+  <div class="group" id="courses"></div>
+  <div class="group" id="certs-group">
+    <h2>Mes certificats</h2>
+    <div id="certs"></div>
+  </div>
+</section>
+
+<!-- BIO-LAB -->
+<section class="screen" id="s-biolab" aria-label="Bio-Lab" hidden>
+  <div class="screen-head">
+    <p class="eyebrow">Axe 2 · Recherche et innovation</p>
+    <h1>Bio-Lab</h1>
+    <p class="lead">Des intrants faits avec ce qui pousse autour de la ferme, dosés pour votre surface. Et un diagnostic rapide quand un problème apparaît.</p>
+  </div>
+  <div class="seg" role="tablist" aria-label="Outils du Bio-Lab">
+    <button type="button" role="tab" id="tab-rec" aria-selected="true" aria-controls="p-rec" data-panel-btn="rec">Recettes</button>
+    <button type="button" role="tab" id="tab-diag" aria-selected="false" aria-controls="p-diag" data-panel-btn="diag">Diagnostic</button>
+  </div>
+  <div id="p-rec" role="tabpanel" aria-labelledby="tab-rec" class="stack">
+    <div class="chips" id="rec-chips"></div>
+    <div class="card" id="recipe"></div>
+  </div>
+  <div id="p-diag" role="tabpanel" aria-labelledby="tab-diag" class="stack" hidden>
+    <div class="group"><h3>1. Que voulez-vous examiner ?</h3><div class="chips" id="crops"></div></div>
+    <div class="group"><h3>2. Qu'observez-vous ?</h3><div class="opts" id="symptoms"></div></div>
+    <div id="diag-result"></div>
+    <div class="card photo">
+      <h3>Demander l'avis d'un conseiller</h3>
+      <p class="muted small">Votre demande part au conseiller de terrain de l'institut, avec la photo si vous en ajoutez une. La réponse arrive ici, dans « Mes demandes ».</p>
+      <div class="field"><label for="req-msg">Votre message</label><textarea id="req-msg" class="input" maxlength="1000" placeholder="Depuis quand ? Combien de plants ou d'animaux touchés ?"></textarea></div>
+      <div class="photo-row">
+        <label class="btn btn-ghost" for="photo">Ajouter une photo</label>
+        <input type="file" id="photo" accept="image/*" class="sr">
+        <img id="photo-prev" alt="Aperçu de la photo jointe" hidden>
+      </div>
+      <button class="btn btn-primary btn-block" type="button" data-act="ask">Envoyer au conseiller</button>
+    </div>
+    <div class="group" id="myreq-group" hidden>
+      <h2>Mes demandes</h2>
+      <ul class="rows card" id="myreq"></ul>
+    </div>
+  </div>
+</section>
+
+<!-- MARCHÉ -->
+<section class="screen" id="s-marche" aria-label="Marché bio" hidden>
+  <div class="screen-head">
+    <p class="eyebrow">Axes 3 et 4 · Production et services</p>
+    <h1>Marché bio</h1>
+    <p class="lead">Produits des fermes-écoles et des producteurs formés, avec leur passeport de production. Paiement en Pi.</p>
+  </div>
+  <div class="mk-tools">
+    <label class="sr" for="q">Rechercher un produit</label>
+    <input id="q" class="input" type="search" placeholder="Tomate, miel, gari…" autocomplete="off">
+    <button class="btn btn-primary" type="button" data-act="sell">Vendre</button>
+  </div>
+  <div class="chips" id="cats"></div>
+  <div id="products"></div>
+  <p class="note">Les prix sont fixés en Pi par l'institut et les producteurs. Chaque nouvelle offre est vérifiée avant publication.</p>
+  <div class="group" id="myorders-group" hidden>
+    <h2>Mes achats</h2>
+    <ul class="rows card" id="myorders"></ul>
+  </div>
+  <div class="group" id="myoffers-group" hidden>
+    <h2>Mes offres</h2>
+    <ul class="rows card" id="myoffers"></ul>
+  </div>
+</section>
+
+<!-- CARBONE -->
+<section class="screen" id="s-carbone" aria-label="Carbone et sols" hidden>
+  <div class="screen-head">
+    <p class="eyebrow">Objectif 5 · Climat et restauration</p>
+    <h1>Carbone et sols</h1>
+    <p class="lead">Chaque hectare restauré stocke du carbone. Estimez ce que vos pratiques retirent de l'atmosphère.</p>
+  </div>
+  <div class="card" id="carb-inputs"></div>
+  <div class="card" id="carb-result" aria-live="polite"></div>
+  <div class="group">
+    <h2>Du champ au crédit</h2>
+    <ol class="steps card">
+      <li><span>Le producteur déclare sa pratique dans l'application, photos à l'appui.</span></li>
+      <li><span>L'agent de terrain relève le contour de la parcelle.</span></li>
+      <li><span>Les images satellite d'avant et d'après sont comparées.</span></li>
+      <li><span>Un organisme indépendant vérifie sur place, avec prélèvements de sol.</span></li>
+      <li><span>Les crédits vérifiés sont inscrits sur un registre public.</span></li>
+    </ol>
+  </div>
+  <p class="warn">Estimation indicative avec des coefficients moyens pour le Sahel. Aucun crédit n'est émis ni vendu dans cette version de l'application : l'émission exige une méthodologie reconnue et une vérification indépendante.</p>
+</section>
+
+</div>
 </main>
-<footer>
-  <div><strong>Bio Star Monde Éden</strong><p>Former, innover, produire et commercialiser pour un monde agro-biologique durable. Promoteur : M. ZOUGBA NATHANAËL.</p></div>
-  <div class="footer-links"><a href="/privacy.html">Confidentialité</a><a href="/terms.html">Conditions</a><a href="mailto:zoubgaefils@gmail.com">Contact</a></div>
-  <small>© <span id="year"></span> Bio Star Monde Éden — Catalogue en cours de validation par le promoteur.</small>
-</footer>
-<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<div class="cartbar" id="cartbar" hidden>
+  <div class="cartbar-in gutter">
+    <div><b id="cart-n">0 article</b> · <span id="cart-t" class="pi-amount">0 π</span></div>
+    <button class="btn btn-primary" type="button" data-act="checkout">Payer en Pi</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<nav class="nav" aria-label="Navigation principale">
+  <div class="nav-in gutter">
+    <button type="button" data-tab="accueil" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Accueil</button>
+    <button type="button" data-tab="academie"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 9v6"/></svg>Académie</button>
+    <button type="button" data-tab="biolab"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6"/><path d="M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4a2 2 0 0 0 1.8-3l-5-9V3"/><path d="M7.5 15h9"/></svg>Bio-Lab</button>
+    <button type="button" data-tab="marche"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h18l-2 11H5z"/><path d="M8 9l4-6 4 6"/><path d="M9 13v4M15 13v4"/></svg>Marché</button>
+    <button type="button" data-tab="carbone"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-8"/><path d="M12 13c-4 0-7-3-7-7 4 0 7 3 7 7z"/><path d="M12 11c0-4 3-7 7-7 0 4-3 7-7 7z"/></svg>Carbone</button>
+  </div>
+</nav>
+
+<div class="sheet-wrap" id="sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title"><div id="sheet-body"></div></div>
+</div>
+
+<script src="/assets/app.js"></script>
 </body>
 </html>

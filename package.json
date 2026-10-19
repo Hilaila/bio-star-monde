@@ -1,14 +1,18 @@
 {
   "name": "bio-star-monde-eden",
-  "version": "1.6.1",
+  "version": "1.0.0",
   "private": true,
-  "description": "Application agrobiologique Bio Star Monde Éden, préparée pour Pi Browser et Testnet",
-  "author": "M. ZOUGBA NATHANAËL, promoteur de Bio Star Monde Éden <zoubgaefils@gmail.com>",
-  "contributors": [
-    { "name": "Hilaila (développement et maintenance)" }
-  ],
+  "description": "Application Pi de l'Institut international moderne innovant biologique d'agriculture et d'élevage : formation, bio-intrants, diagnostic, marché bio payé en Pi.",
   "license": "UNLICENSED",
-  "type": "module",
-  "engines": { "node": ">=22.13.0" },
-  "scripts": { "start": "node server/index.js", "test": "node tests/api.test.mjs && node tests/appwrite.test.mjs", "check": "node --check server/index.js && node --check core/handler.js && node --check appwrite/main.js && node --check appwrite/store.js && node --check core/schema.js && node --check public/common.js && node --check public/qr.js && node --check public/app.js && node --check public/farm.js && node --check public/lot.js" }
+  "author": "ZOUGBA Nathanaël (promoteur)",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "PI_SANDBOX=true node server.js",
+    "test": "node --test tests/api.test.js"
+  },
+  "dependencies": {}
 }
