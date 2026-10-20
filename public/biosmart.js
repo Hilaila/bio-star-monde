@@ -88,7 +88,7 @@ function renderCalendar() {
 
 // ===================== Recettes de bio-intrants =====================
 const RECIPES = [
-  { id: 'neem', short: 'Neem', name: 'Extrait de graines de neem 5 %', kind: 'Biopesticide', basis: 'ha', def: 0.25, step: 0.05,
+  { id: 'neem', short: 'Neem', name: 'Extrait de graines de neem 5 %', kind: 'Biopesticide', basis: 'ha', def: 0.25, step: 0.05,
     targets: 'chenilles, pucerons, aleurodes, thrips', hint: 'Bouillie : 300 L par hectare (1 ha = 10 000 m²).',
     calc(a) { const b = 300 * a; return { out: qty(b, 'L') + ' de bouillie prête à pulvériser', rows: [['Graines de neem sèches, décortiquées et pilées', 0.05 * b, 'kg'], ['Eau propre', b, 'L'], ['Savon noir liquide (adhésif)', 0.001 * b, 'L']] }; },
     steps: ['Piler finement les graines la veille au soir.', 'Laisser macérer la poudre dans l’eau 12 à 24 h, à l’ombre.', 'Filtrer avec un tissu fin, ajouter le savon et bien mélanger.', 'Pulvériser en fin d’après-midi, sur les deux faces des feuilles.', 'Renouveler tous les 7 à 10 jours tant que les ravageurs sont présents.'],
@@ -115,7 +115,7 @@ const RECIPES = [
     caution: 'Ne pas arroser les feuilles des légumes consommés crus.' },
   { id: 'vinaigre', short: 'Désherbant', name: 'Désherbant au vinaigre', kind: 'Bioherbicide', basis: 'L', def: 10, step: 5,
     targets: 'jeunes adventices des allées et des bordures', hint: 'Volume de mélange à préparer.',
-    calc(v) { return { out: qty(v, 'L') + ' de mélange', rows: [['Vinaigre blanc à 8 %', v * 0.99, 'L'], ['Savon noir liquide (mouillant)', v * 0.01, 'L']] }; },
+    calc(v) { return { out: qty(v, 'L') + ' de mélange', rows: [['Vinaigre blanc à 8 %', v * 0.99, 'L'], ['Savon noir liquide (mouillant)', v * 0.01, 'L']] }; },
     steps: ['Mélanger le vinaigre et le savon sans faire mousser.', 'Pulvériser par temps ensoleillé et sans vent, directement sur les jeunes adventices.', 'Protéger les cultures voisines avec un carton.', 'Renouveler après 10 à 15 jours si les adventices repoussent.'],
     caution: 'Produit non sélectif : il brûle aussi les cultures. Ne pas ajouter de sel, qui stérilise le sol. Vérifier son admissibilité auprès de votre organisme de certification.' }
 ];
@@ -169,11 +169,11 @@ function updateRecipe() {
 // ===================== Diagnostic par symptômes =====================
 const DIAG = {
   'Tomate': [
-    { s: 'Feuilles jaunes et enroulées, petites mouches blanches sous les feuilles', c: 'Aleurodes, vecteurs du virus de l’enroulement jaune (TYLCV)', u: 'Élevée', a: ['Poser des pièges jaunes englués entre les rangs.', 'Pulvériser l’extrait de neem 5 % tous les 7 jours.', 'Arracher et détruire les plants déjà atteints par le virus.', 'Protéger la pépinière avec un filet anti-insectes.'], r: 'neem' },
+    { s: 'Feuilles jaunes et enroulées, petites mouches blanches sous les feuilles', c: 'Aleurodes, vecteurs du virus de l’enroulement jaune (TYLCV)', u: 'Élevée', a: ['Poser des pièges jaunes englués entre les rangs.', 'Pulvériser l’extrait de neem 5 % tous les 7 jours.', 'Arracher et détruire les plants déjà atteints par le virus.', 'Protéger la pépinière avec un filet anti-insectes.'], r: 'neem' },
     { s: 'Taches brunes à cercles concentriques sur les feuilles du bas', c: 'Alternariose (champignon)', u: 'Moyenne', a: ['Retirer et brûler les feuilles touchées.', 'Pailler pour éviter les éclaboussures de terre.', 'Arroser au pied, le matin.', 'Ne pas replanter tomate, piment ou aubergine sur la parcelle pendant 3 ans.'] },
     { s: 'Fruits troués avec une chenille à l’intérieur', c: 'Noctuelle de la tomate (Helicoverpa armigera)', u: 'Élevée', a: ['Ramasser et détruire les fruits atteints.', 'Traiter au neem dès le début de la floraison.', 'Alterner avec le répulsif piment-ail.'], r: 'neem' }
   ],
-  'Chou': [{ s: 'Petits trous dans les feuilles, petites chenilles vertes qui se tortillent', c: 'Teigne du chou (Plutella xylostella)', u: 'Élevée', a: ['Pulvériser le neem 5 % tous les 5 à 7 jours.', 'Alterner avec le piment-ail pour éviter les résistances.', 'Associer le chou avec l’oignon ou la tomate.'], r: 'neem' }],
+  'Chou': [{ s: 'Petits trous dans les feuilles, petites chenilles vertes qui se tortillent', c: 'Teigne du chou (Plutella xylostella)', u: 'Élevée', a: ['Pulvériser le neem 5 % tous les 5 à 7 jours.', 'Alterner avec le piment-ail pour éviter les résistances.', 'Associer le chou avec l’oignon ou la tomate.'], r: 'neem' }],
   'Oignon': [{ s: 'Taches argentées et stries blanches sur les feuilles', c: 'Thrips', u: 'Moyenne', a: ['Pulvériser le piment-ail, puis le neem en alternance.', 'Arroser par aspersion : l’eau gêne les thrips.', 'Désherber les bordures où ils se réfugient.'], r: 'piment' }],
   'Maïs': [{ s: 'Feuilles trouées en fenêtres, sciure dans le cornet', c: 'Chenille légionnaire d’automne (Spodoptera frugiperda)', u: 'Élevée', a: ['Inspecter 20 plants deux fois par semaine.', 'Verser une pincée de cendre ou de sable sec dans le cornet.', 'Pulvériser le neem dans le cornet, tôt le matin.', 'Installer le système push-pull : desmodium entre les rangs, brachiaria en bordure.'], r: 'neem' }],
   'Mil / sorgho': [{ s: 'Petites plantes à fleurs roses ou violettes au pied des céréales', c: 'Striga, plante parasite des racines', u: 'Élevée', a: ['Arracher les striga avant leur floraison et les brûler.', 'Apporter du compost : un sol riche limite le striga.', 'Faire une rotation avec le niébé ou l’arachide, qui font germer le striga sans le nourrir.'], r: 'compost' }],
