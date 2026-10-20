@@ -154,6 +154,15 @@ async function processIncomplete() {
   } catch (e) { toast('Paiement précédent à vérifier : ' + e.message); }
 }
 
+// Pi Browser ne répond jamais si l'adresse n'est pas celle d'une application enregistrée dans le Developer Portal :
+// au-delà de ce délai, un message clair remplace l'attente silencieuse.
+const PI_AUTH_TIMEOUT_MS = Number(window.BSME_PI_AUTH_TIMEOUT_MS) || 25000;
+function withTimeout(promise, ms, message) {
+  let timer;
+  const timeout = new Promise((_, reject) => { timer = setTimeout(() => reject(new Error(message)), ms); });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
 async function connectPi() {
   if (!window.Pi) {
     toast('Le SDK Pi est indisponible. Ouvrez cette application dans Pi Browser.');
@@ -162,10 +171,14 @@ async function connectPi() {
   }
   if (!piReady) await initPi();
   if (!piReady) return;
+  const button = $('#connect');
+  if (button.disabled) return;
+  button.disabled = true;
+  status('Connexion à Pi en cours… Acceptez la demande de Pi Browser.');
   try {
-    const auth = await window.Pi.authenticate(['username', 'payments'], (payment) => {
+    const auth = await withTimeout(window.Pi.authenticate(['username', 'payments'], (payment) => {
       if (payment && payment.identifier) { pendingIncomplete = payment; processIncomplete(); }
-    });
+    }), PI_AUTH_TIMEOUT_MS, 'Pi Browser ne répond pas. Réessayez dans un instant ; si cela continue, l’adresse de l’application n’est peut-être pas encore enregistrée auprès de Pi.');
     piUser = auth.user;
     piAccessToken = auth.accessToken;
     const verified = await api('/api/pi-auth', { accessToken: piAccessToken });
@@ -177,12 +190,14 @@ async function connectPi() {
     showSpaces();
   } catch (e) {
     toast('Connexion Pi impossible : ' + e.message);
-    status('Connexion Pi non établie.');
+    status('Connexion Pi non établie : ' + e.message);
+  } finally {
+    button.disabled = false;
   }
 }
 async function buy(product, button) {
   if (!piReady || !piUser || !piAccessToken || !window.Pi) {
-    toast('Connectez-vous d’abord avec Pi Browser.');
+    toast('Connectez-vous d’abord avec Pi : bouton « Connexion Pi », en haut à droite.');
     return;
   }
   button.disabled = true;
