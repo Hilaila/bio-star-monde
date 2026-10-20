@@ -50,6 +50,24 @@ Une seule fonction Appwrite sert les pages, l'API Pi et la base de données. Ell
 1. Attendez que le déploiement soit **Ready** (onglet **Deployments**).
 2. Ouvrez une fois `https://bio-star-monde.fra.appwrite.run/api/setup` : il crée les tables ajoutées par la version sans toucher aux commandes. La version 1.7 ajoute : progression, attestations, demandes de conseil et messages. Si la réponse tarde, ouvrez-la une seconde fois.
 
+## 7. Deux adresses : test (Testnet) et production (Mainnet)
+
+Pi ne vérifie une adresse que pour une seule application. On garde `https://bio-star-monde.fra.appwrite.run` pour l'application **Mainnet** et l'application **Testnet** reçoit sa propre adresse, avec sa propre base de données.
+
+1. **Functions**, puis **Create function** : même dépôt et mêmes réglages qu'à l'étape 2, avec **Name** : `bio-star-monde-test`.
+2. **Settings**, puis **Environment variables** :
+   - `PI_API_KEY` = clé API de l'application **Testnet** (cochez **Secret**) ;
+   - `PI_NETWORK` = `testnet` ;
+   - `APPWRITE_DATABASE_ID` = `biostar_test` ;
+   - `ADMIN_USERNAMES` = nom d'utilisateur Pi de M. ZOUGBA NATHANAËL (et celui de Hilaila si l'accord le prévoit) ;
+   - `PI_VALIDATION_KEY` = clé « Verify domain » de l'application **Testnet**.
+3. **Timeout** : 30 secondes, puis **Redeploy**.
+4. Onglet **Domains** : copiez la nouvelle adresse et ouvrez une fois `<nouvelle adresse>/api/setup`. La réponse doit commencer par « Base prête : biostar_test ».
+5. Sur develop.pi, M. ZOUGBA remplace l'adresse de l'application **Testnet** (onglet **Domain**) par la nouvelle, puis appuie sur **Verify**.
+6. Quand l'application **Mainnet** existe, la fonction d'origine `bio-star-monde` devient la production : `PI_API_KEY` = clé de l'application Mainnet, `PI_NETWORK` = `mainnet`, `PI_VALIDATION_KEY` = clé « Verify domain » de l'application Mainnet, `APPWRITE_DATABASE_ID` = `biostar_mainnet` (base neuve, sans aucune commande de test). **Redeploy**, puis ouvrez une fois `https://bio-star-monde.fra.appwrite.run/api/setup`.
+
+Les deux fonctions se mettent à jour ensemble à chaque envoi sur `main`.
+
 ## À savoir
 
 - Offre gratuite : un projet sans activité de développement dans la console pendant 7 jours est mis en pause. Il se réactive depuis la console. Avant le Mainnet, prévoyez l'offre Pro ou une visite régulière de la console.

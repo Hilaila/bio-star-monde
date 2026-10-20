@@ -22,6 +22,26 @@ L'approbation reste une décision de la Pi Core Team. Cochez d'abord [PI_APPROVA
 | Logo | `logo-1024.png` : logo officiel de l'Institut fourni par le promoteur (1024 × 1024 px, PNG, 335 Ko) |
 | Captures | `1-accueil.png` à `5-attestation-verifiee.png` (1080 × 1920 px) |
 
+## 1 bis. Champs du portail (formulaire « Ecosystem Listing Application »)
+
+| Champ du portail | À saisir |
+| --- | --- |
+| App Name (dans « App configuration ») | Bio Star Monde Éden |
+| Version | 1.7.0 (sans « Version » ni point final) |
+| Description (dans « App configuration ») | Texte ci-dessous |
+| Intro Preview Image | `logo-1024.png` |
+| Previews | `1-accueil.png`, `2-academie.png`, `3-biosmart-diagnostic.png`, `4-tracabilite-lot.png`, `5-attestation-verifiee.png`, dans cet ordre |
+| Pi Exclusive Transactions, Pi SDK Exclusive Authentication | Cochées |
+| PiOS Compatible | No |
+| Pi Sign-In | Rien à remplir : il sert à se connecter avec Pi hors de Pi Browser, ce que l'application ne fait pas |
+
+Les 6 images respectent les limites du portail : PNG, au moins 400 × 400 px, moins de 1 Mo (la plus lourde, `1-accueil.png`, fait 841 Ko).
+
+**Description pour le portail (FR)**
+> Application de l'Institut International Moderne Innovant Biologique d'Agriculture et d'Élevage (Burkina Faso). BioStar Academy : 9 formations agro-biologiques payées en Pi, avec attestation vérifiable par code QR. BioSmart : calendrier agricole, recettes de bio-intrants et diagnostic des cultures et des volailles. BioTrace : traçabilité des lots par code QR. BioImpact : estimation du carbone stocké dans les sols. Connexion et paiement uniquement avec Pi.
+
+**Une adresse par application.** Pi ne vérifie une adresse que pour une seule application. `https://bio-star-monde.fra.appwrite.run` est réservée à l'application Mainnet, qui est celle à référencer ; l'application Testnet reçoit sa propre adresse (DEPLOIEMENT_APPWRITE.md, étape 7).
+
 ## 2. Descriptions
 
 **Description courte (FR)**

@@ -1,23 +1,30 @@
 // Stockage dans Appwrite (TablesDB), par l'API REST : aucune dépendance à installer.
-// La base « biostar » et ses tables (core/schema.js) sont créées automatiquement : au premier usage de chaque table,
-// ou toutes ensemble par /api/setup.
+// La base (« biostar » par défaut, ou celle de la variable APPWRITE_DATABASE_ID) et ses tables (core/schema.js)
+// sont créées automatiquement : au premier usage de chaque table, ou toutes ensemble par /api/setup.
+// Une base par réseau : l'adresse de test (Testnet) et l'adresse de production (Mainnet) ne mélangent jamais leurs données.
 // Portées nécessaires pour la clé dynamique de la fonction : databases.*, tables.*, columns.*, indexes.*, rows.* (lecture et écriture).
 import { TABLES, columnKeys, booleanKeys } from '../core/schema.js';
 
 export const DATABASE_ID = 'biostar';
 export const TABLE_ID = 'orders';
+// Identifiant Appwrite : lettres, chiffres, point, tiret ou souligné, 36 caractères au plus, sans caractère spécial au début.
+export const DATABASE_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,35}$/;
 
 const ready = new Set();
-let databaseReady = false;
+const readyDatabases = new Set();
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitMs = 1000 }) {
+export function createAppwriteStore({ endpoint, projectId, key, databaseId = DATABASE_ID, fetchImpl, waitMs = 1000 }) {
   const doFetch = (...args) => (fetchImpl || globalThis.fetch)(...args);
   const base = String(endpoint || '').replace(/\/+$/, '');
-  const tablePath = (table) => `/tablesdb/${DATABASE_ID}/tables/${table}`;
+  const dbId = String(databaseId || DATABASE_ID).trim();
+  const badDatabaseId = !DATABASE_ID_RE.test(dbId);
+  const tablePath = (table) => `/tablesdb/${dbId}/tables/${table}`;
+  const tableReady = (table) => ready.has(dbId + '/' + table);
 
   async function call(method, path, body, queries) {
     if (!base || !projectId || !key) throw new Error('Appwrite non configuré : endpoint, projet ou clé dynamique manquant (vérifiez les portées de la fonction).');
+    if (badDatabaseId) throw new Error('Variable APPWRITE_DATABASE_ID invalide : lettres, chiffres, point, tiret ou souligné, 36 caractères au plus, par exemple biostar_test.');
     const url = new URL(base + path);
     (queries || []).forEach((q, i) => url.searchParams.append(`queries[${i}]`, JSON.stringify(q)));
     const response = await doFetch(url, {
@@ -37,12 +44,12 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
   }
 
   async function ensureDatabase() {
-    if (databaseReady) return;
-    try { await call('GET', `/tablesdb/${DATABASE_ID}`); } catch (e) {
+    if (readyDatabases.has(dbId)) return;
+    try { await call('GET', `/tablesdb/${dbId}`); } catch (e) {
       if (e.code !== 404) throw e;
-      await call('POST', '/tablesdb', { databaseId: DATABASE_ID, name: 'Bio Star Monde Éden' });
+      await call('POST', '/tablesdb', { databaseId: dbId, name: dbId === DATABASE_ID ? 'Bio Star Monde Éden' : 'Bio Star Monde Éden (' + dbId + ')' });
     }
-    databaseReady = true;
+    readyDatabases.add(dbId);
   }
 
   // Étape 1 : table et colonnes manquantes (première installation, nouvelle version ou installation interrompue).
@@ -52,7 +59,7 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
     try { current = await call('GET', tablePath(table)); } catch (e) {
       if (e.code !== 404) throw e;
       await ensureDatabase();
-      await call('POST', `/tablesdb/${DATABASE_ID}/tables`, { tableId: table, name: TABLES[table].name, permissions: [], rowSecurity: false });
+      await call('POST', `/tablesdb/${dbId}/tables`, { tableId: table, name: TABLES[table].name, permissions: [], rowSecurity: false });
       current = await call('GET', tablePath(table));
     }
     const existing = new Map((current.columns || []).map((c) => [c.key, c]));
@@ -75,14 +82,14 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
     const indexes = new Map((current.indexes || []).map((x) => [x.key, x]));
     for (const ix of TABLES[table].indexes) if (!indexes.has(ix.key)) await call('POST', `${tablePath(table)}/indexes`, ix);
     if (TABLES[table].indexes.some((ix) => indexes.has(ix.key) && indexes.get(ix.key).status && indexes.get(ix.key).status !== 'available')) return false;
-    ready.add(table);
+    ready.add(dbId + '/' + table);
     return true;
   }
 
   // Prépare des tables dans un temps limité, pour rester sous le délai d'exécution de la fonction.
   async function prepareTables(tables, budgetMs) {
     const deadline = Date.now() + budgetMs;
-    let pending = tables.filter((t) => !ready.has(t));
+    let pending = tables.filter((t) => !tableReady(t));
     while (pending.length) {
       for (const t of pending) {
         if (Date.now() > deadline) break;
@@ -90,7 +97,7 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
         if (Date.now() > deadline) break;
         await checkTable(t);
       }
-      pending = pending.filter((t) => !ready.has(t));
+      pending = pending.filter((t) => !tableReady(t));
       if (!pending.length || Date.now() + waitMs > deadline) break;
       await pause(waitMs);
     }
@@ -98,7 +105,7 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
   }
 
   async function ensureTable(table) {
-    if (ready.has(table)) return;
+    if (tableReady(table)) return;
     const result = await prepareTables([table], 8000);
     if (!result.ready) throw new Error(`La table Appwrite « ${table} » est en cours de création : réessayez dans quelques secondes.`);
   }
@@ -190,4 +197,4 @@ export function createAppwriteStore({ endpoint, projectId, key, fetchImpl, waitM
 }
 
 // Pour les tests uniquement.
-export function resetSchemaCache() { ready.clear(); databaseReady = false; }
+export function resetSchemaCache() { ready.clear(); readyDatabases.clear(); }

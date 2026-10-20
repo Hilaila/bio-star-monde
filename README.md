@@ -99,6 +99,7 @@ Variables Pi du fichier `.env` :
 - `PI_NETWORK` : `testnet` ou `mainnet` (affichage et état technique).
 - `PI_VALIDATION_KEY` : clé de vérification du domaine fournie par le Developer Portal.
 - `ADMIN_USERNAMES` : noms d’utilisateur Pi autorisés à ouvrir l’espace Administration, séparés par des virgules (sans @). Vide : espace désactivé.
+- `APPWRITE_DATABASE_ID` (Appwrite) : base de données, `biostar` par défaut. Une base par réseau : `biostar_test` pour l’adresse de test, `biostar_mainnet` pour la production (voir DEPLOIEMENT_APPWRITE.md, étape 7).
 - `FRAME_ANCESTORS` : origines autorisées à afficher l’application dans un cadre (Sandbox et Pi Browser). Valeur par défaut : `'self' https://*.minepi.com https://*.pinet.com`.
 
 Liste de contrôle avant soumission : [PI_APPROVAL_CHECKLIST.md](PI_APPROVAL_CHECKLIST.md). Cette base ne garantit pas l’approbation de Pi.
