@@ -27,7 +27,7 @@ Une seule fonction Appwrite sert les pages, l'API Pi et la base de données. Ell
 1. **Environment variables**, puis **Create variable** :
    - `PI_API_KEY` = clé API de l'application Pi Testnet, en cochant **Secret** ;
    - `PI_NETWORK` = `testnet` ;
-   - `ADMIN_USERNAMES` = `4Nathanel`, nom d’utilisateur Pi de M. ZOUBGA NATHANAËL, sans @ (ajoutez celui de Hilaila après une virgule si l’accord le prévoit).
+   - `ADMIN_USERNAMES` = `4Nathanel`, nom d’utilisateur Pi de M. ZOUBGA NATHANAËL, sans @, et lui seul (décision du promoteur du 20 octobre 2026).
 2. **Timeout** : 30 secondes.
 3. Onglet **Deployments**, menu ⋯ du dernier déploiement, puis **Redeploy** : les variables ne s'appliquent qu'après un redéploiement.
 
@@ -59,7 +59,7 @@ Pi ne vérifie une adresse que pour une seule application. On garde `https://bio
    - `PI_API_KEY` = clé API de l'application **Testnet** (cochez **Secret**) ;
    - `PI_NETWORK` = `testnet` ;
    - `APPWRITE_DATABASE_ID` = `biostar_test` ;
-   - `ADMIN_USERNAMES` = `4Nathanel`, nom d'utilisateur Pi de M. ZOUBGA NATHANAËL (et celui de Hilaila si l'accord le prévoit) ;
+   - `ADMIN_USERNAMES` = `4Nathanel`, nom d'utilisateur Pi de M. ZOUBGA NATHANAËL, et lui seul ;
    - `PI_VALIDATION_KEY` = clé « Verify domain » de l'application **Testnet**. Ne la mettez jamais sur la fonction d'origine : l'adresse de production serait alors vérifiée pour le Testnet.
 3. **Timeout** : 30 secondes, puis **Redeploy**.
 4. Onglet **Domains** : copiez la nouvelle adresse et ouvrez une fois `<nouvelle adresse>/api/setup`. La réponse doit commencer par « Base prête : biostar_test ».

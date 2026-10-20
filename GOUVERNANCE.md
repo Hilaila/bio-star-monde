@@ -21,7 +21,7 @@ M. ZOUBGA NATHANAËL porte le projet et en détient les droits. Hilaila en assur
 | Portefeuille de l'application (Mainnet) | M. ZOUBGA NATHANAËL | — | Reçoit les paiements en Pi. Sa phrase secrète (passphrase) n'est jamais communiquée à personne, développeur compris. |
 | Clés API Pi (Testnet, puis Mainnet) | Générées par M. ZOUBGA NATHANAËL | Hilaila, côté serveur | Transmises par un canal sécurisé, stockées uniquement dans la variable secrète `PI_API_KEY` de l'hébergement. Régénérées en cas de fuite ou de fin de collaboration. |
 | Projet Appwrite (pages, API et base de données) | Hilaila | Hilaila | Clé API Pi enregistrée comme variable secrète de la fonction. Transfert au promoteur à prévoir dans l'accord. |
-| Espace Administration de l'application | M. ZOUBGA NATHANAËL | Comptes Pi listés dans `ADMIN_USERNAMES` | Accès vérifié auprès de Pi à chaque ouverture. Hilaila n'y figure que si l'accord le prévoit. |
+| Espace Administration de l'application | M. ZOUBGA NATHANAËL | Comptes Pi listés dans `ADMIN_USERNAMES` | Accès vérifié auprès de Pi à chaque ouverture. Seul compte autorisé : `4Nathanel` (décision du promoteur du 20 octobre 2026 ; Hilaila n'y figure pas). |
 | Clé de validation du domaine | Fournie par le Developer Portal | Hilaila | Variable `PI_VALIDATION_KEY`, servie sur `/validation-key.txt`. |
 | Dépôt GitHub | Hilaila | Hilaila | Gestion technique. Accès en lecture recommandé pour le promoteur. |
 | Hébergement et nom de domaine | À fixer dans l'accord | Hilaila | Le nom de domaine gagne à être enregistré au nom du promoteur ou de l'Institut, propriétaire du projet. |
