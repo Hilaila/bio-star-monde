@@ -260,4 +260,34 @@ assert.equal(r.status, 200); assert.equal(r.json.ok, false); assert.match(r.json
 r = await run('GET', '/');
 assert.equal(r.status, 200); ok('identifiant de base invalide : message lisible, pages toujours servies');
 delete process.env.APPWRITE_DATABASE_ID;
+// Forfait gratuit : une seule base. Production Mainnet séparée par un préfixe de tables (APPWRITE_TABLE_PREFIX).
+resetSchemaCache();
+process.env.APPWRITE_TABLE_PREFIX = 'main_';
+db.calls.length = 0;
+r = await run('GET', '/api/setup');
+assert.equal(r.json.ok, true, JSON.stringify(r.json)); assert.match(r.json.message, /^Base prête : biostar, tables main_\* /);
+for (const name of Object.keys(TABLES)) assert.ok(db.tables.has('main_' + name), 'table main_' + name);
+assert.ok(db.calls.filter((c) => c.includes('/tables/')).every((c) => /\/tablesdb\/biostar\/tables\/main_/.test(c)), 'aucun appel vers les tables Testnet');
+const testnetOrders = db.tables.get('orders').rows.length;
+payments.set('pm1', { identifier: 'pm1', user_uid: 'u1', amount: 1, metadata: { productId: 'fondamentaux-agrobio' }, status: {}, transaction: null });
+r = await run('POST', '/api/payments/approve', { paymentId: 'pm1', productId: 'fondamentaux-agrobio', accessToken: 'tok-alice-1234' });
+assert.equal(r.json.status, 'approved', JSON.stringify(r)); assert.equal(db.tables.get('main_orders').rows.length, 1); assert.equal(db.tables.get('orders').rows.length, testnetOrders);
+ok('préfixe main_ : tables de production séparées des tables Testnet dans la même base');
+process.env.APPWRITE_TABLE_PREFIX = 'Main-';
+resetSchemaCache();
+r = await run('GET', '/api/setup'); assert.equal(r.json.ok, false); assert.match(r.json.error, /APPWRITE_TABLE_PREFIX invalide/);
+delete process.env.APPWRITE_TABLE_PREFIX;
+ok('préfixe invalide : message lisible');
+// Limite du forfait gratuit : message clair si une deuxième base est demandée.
+resetSchemaCache();
+process.env.APPWRITE_DATABASE_ID = 'biostar_autre';
+const savedFetch2 = globalThis.fetch;
+globalThis.fetch = async (url, opts = {}) => {
+  if (String(url).startsWith(ENDPOINT) && opts.method === 'POST' && new URL(url).pathname.endsWith('/tablesdb')) return reply(403, { message: 'The maximum number of databases allowed for the selected plan has reached. Upgrade to increase the limit.' });
+  return savedFetch2(url, opts);
+};
+r = await run('GET', '/api/setup');
+globalThis.fetch = savedFetch2; delete process.env.APPWRITE_DATABASE_ID;
+assert.equal(r.json.ok, false); assert.match(r.json.error, /une seule base de données par projet/);
+ok('forfait gratuit : limite d’une base expliquée');
 console.log('Tous les tests Appwrite sont passés');

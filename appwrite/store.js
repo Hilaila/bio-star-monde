@@ -1,7 +1,8 @@
 // Stockage dans Appwrite (TablesDB), par l'API REST : aucune dépendance à installer.
 // La base (« biostar » par défaut, ou celle de la variable APPWRITE_DATABASE_ID) et ses tables (core/schema.js)
 // sont créées automatiquement : au premier usage de chaque table, ou toutes ensemble par /api/setup.
-// Une base par réseau : l'adresse de test (Testnet) et l'adresse de production (Mainnet) ne mélangent jamais leurs données.
+// Séparation Testnet / Mainnet : une base par réseau (APPWRITE_DATABASE_ID, forfaits payants) ou, avec le forfait gratuit
+// limité à une seule base, un préfixe de tables dans la même base (APPWRITE_TABLE_PREFIX, par exemple « main_ »).
 // Portées nécessaires pour la clé dynamique de la fonction : databases.*, tables.*, columns.*, indexes.*, rows.* (lecture et écriture).
 import { TABLES, columnKeys, booleanKeys } from '../core/schema.js';
 
@@ -9,22 +10,28 @@ export const DATABASE_ID = 'biostar';
 export const TABLE_ID = 'orders';
 // Identifiant Appwrite : lettres, chiffres, point, tiret ou souligné, 36 caractères au plus, sans caractère spécial au début.
 export const DATABASE_ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,35}$/;
+// Préfixe de tables : minuscules, chiffres ou souligné, 12 caractères au plus (identifiant final de 36 caractères au plus).
+export const TABLE_PREFIX_RE = /^([a-z][a-z0-9_]{0,11})?$/;
 
 const ready = new Set();
 const readyDatabases = new Set();
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export function createAppwriteStore({ endpoint, projectId, key, databaseId = DATABASE_ID, fetchImpl, waitMs = 1000 }) {
+export function createAppwriteStore({ endpoint, projectId, key, databaseId = DATABASE_ID, tablePrefix = '', fetchImpl, waitMs = 1000 }) {
   const doFetch = (...args) => (fetchImpl || globalThis.fetch)(...args);
   const base = String(endpoint || '').replace(/\/+$/, '');
   const dbId = String(databaseId || DATABASE_ID).trim();
   const badDatabaseId = !DATABASE_ID_RE.test(dbId);
-  const tablePath = (table) => `/tablesdb/${dbId}/tables/${table}`;
-  const tableReady = (table) => ready.has(dbId + '/' + table);
+  const prefix = String(tablePrefix || '').trim();
+  const badPrefix = !TABLE_PREFIX_RE.test(prefix);
+  const tid = (table) => prefix + table;
+  const tablePath = (table) => `/tablesdb/${dbId}/tables/${tid(table)}`;
+  const tableReady = (table) => ready.has(dbId + '/' + tid(table));
 
   async function call(method, path, body, queries) {
     if (!base || !projectId || !key) throw new Error('Appwrite non configuré : endpoint, projet ou clé dynamique manquant (vérifiez les portées de la fonction).');
     if (badDatabaseId) throw new Error('Variable APPWRITE_DATABASE_ID invalide : lettres, chiffres, point, tiret ou souligné, 36 caractères au plus, par exemple biostar_test.');
+    if (badPrefix) throw new Error('Variable APPWRITE_TABLE_PREFIX invalide : une lettre minuscule puis minuscules, chiffres ou souligné, 12 caractères au plus, par exemple main_.');
     const url = new URL(base + path);
     (queries || []).forEach((q, i) => url.searchParams.append(`queries[${i}]`, JSON.stringify(q)));
     const response = await doFetch(url, {
@@ -47,7 +54,16 @@ export function createAppwriteStore({ endpoint, projectId, key, databaseId = DAT
     if (readyDatabases.has(dbId)) return;
     try { await call('GET', `/tablesdb/${dbId}`); } catch (e) {
       if (e.code !== 404) throw e;
-      await call('POST', '/tablesdb', { databaseId: dbId, name: dbId === DATABASE_ID ? 'Bio Star Monde Éden' : 'Bio Star Monde Éden (' + dbId + ')' });
+      try {
+        await call('POST', '/tablesdb', { databaseId: dbId, name: dbId === DATABASE_ID ? 'Bio Star Monde Éden' : 'Bio Star Monde Éden (' + dbId + ')' });
+      } catch (err) {
+        if (err.code === 403 && /maximum number of databases/i.test(err.message)) {
+          const limit = new Error('Le forfait Appwrite n\'autorise qu\'une seule base de données par projet : mettez APPWRITE_DATABASE_ID=biostar (la base existante) et séparez les données avec APPWRITE_TABLE_PREFIX.');
+          limit.code = 403;
+          throw limit;
+        }
+        throw err;
+      }
     }
     readyDatabases.add(dbId);
   }
@@ -59,7 +75,7 @@ export function createAppwriteStore({ endpoint, projectId, key, databaseId = DAT
     try { current = await call('GET', tablePath(table)); } catch (e) {
       if (e.code !== 404) throw e;
       await ensureDatabase();
-      await call('POST', `/tablesdb/${dbId}/tables`, { tableId: table, name: TABLES[table].name, permissions: [], rowSecurity: false });
+      await call('POST', `/tablesdb/${dbId}/tables`, { tableId: tid(table), name: TABLES[table].name + (prefix ? ' (' + prefix.replace(/_+$/, '') + ')' : ''), permissions: [], rowSecurity: false });
       current = await call('GET', tablePath(table));
     }
     const existing = new Map((current.columns || []).map((c) => [c.key, c]));
@@ -82,7 +98,7 @@ export function createAppwriteStore({ endpoint, projectId, key, databaseId = DAT
     const indexes = new Map((current.indexes || []).map((x) => [x.key, x]));
     for (const ix of TABLES[table].indexes) if (!indexes.has(ix.key)) await call('POST', `${tablePath(table)}/indexes`, ix);
     if (TABLES[table].indexes.some((ix) => indexes.has(ix.key) && indexes.get(ix.key).status && indexes.get(ix.key).status !== 'available')) return false;
-    ready.add(dbId + '/' + table);
+    ready.add(dbId + '/' + tid(table));
     return true;
   }
 

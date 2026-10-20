@@ -4,7 +4,8 @@
 //   Portées : databases, tables, columns, indexes, rows (lecture et écriture)
 //   Variables : PI_API_KEY (secrète) ; facultatives : PI_NETWORK (testnet|mainnet), PI_SANDBOX (true|false), PI_VALIDATION_KEY,
 //               ADMIN_USERNAMES (noms d'utilisateur Pi autorisés à l'administration, séparés par des virgules),
-//               APPWRITE_DATABASE_ID (base de données, « biostar » par défaut ; « biostar_test » pour l'adresse de test Testnet)
+//               APPWRITE_DATABASE_ID (base de données, « biostar » par défaut ; le forfait gratuit n'en autorise qu'une),
+//               APPWRITE_TABLE_PREFIX (préfixe des tables dans cette base, par exemple « main_ » pour la production Mainnet)
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -25,11 +26,13 @@ const CSP = "default-src 'self'; script-src 'self' https://sdk.minepi.com https:
 export default async ({ req, res, log, error }) => {
   const env = process.env;
   const databaseId = (env.APPWRITE_DATABASE_ID || '').trim() || DATABASE_ID;
+  const tablePrefix = (env.APPWRITE_TABLE_PREFIX || '').trim();
   const store = createAppwriteStore({
     endpoint: env.APPWRITE_FUNCTION_API_ENDPOINT,
     projectId: env.APPWRITE_FUNCTION_PROJECT_ID,
     key: req.headers['x-appwrite-key'] || '',
-    databaseId
+    databaseId,
+    tablePrefix
   });
   const api = createApi({
     catalogue, academy, store,
@@ -47,7 +50,7 @@ export default async ({ req, res, log, error }) => {
   if (req.method === 'GET' && req.path === '/api/setup') {
     try {
       const result = await store.prepare({ budgetMs: 7000 });
-      if (result.ready) return res.json({ ok: true, message: 'Base prête : ' + databaseId + ' (' + Object.keys(TABLES).join(', ') + ').' }, 200, { ...SECURITY, 'Cache-Control': 'no-store' });
+      if (result.ready) return res.json({ ok: true, message: 'Base prête : ' + databaseId + (tablePrefix ? ', tables ' + tablePrefix + '*' : '') + ' (' + Object.keys(TABLES).join(', ') + ').' }, 200, { ...SECURITY, 'Cache-Control': 'no-store' });
       return res.json({ ok: false, pending: result.pending, message: 'Création en cours : rouvrez cette adresse dans 30 secondes.' }, 200, { ...SECURITY, 'Cache-Control': 'no-store' });
     } catch (e) {
       error('Préparation de la base : ' + e.message);
