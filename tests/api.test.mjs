@@ -10,7 +10,7 @@ const projectDir = process.argv[2] || path.resolve(path.dirname(fileURLToPath(im
 const testDbDir = process.env.TEST_DB_DIR || fs.mkdtempSync(path.join(os.tmpdir(), 'bsme-test-'));
 const realFetch = globalThis.fetch;
 const payments = new Map();
-const users = { 'tok-alice-xxxxxxxx': { uid: 'u-alice', username: 'alice' }, 'tok-bob-xxxxxxxxxx': { uid: 'u-bob', username: 'bob' }, 'tok-zougba-xxxxxxx': { uid: 'u-z', username: 'Zougba' } };
+const users = { 'tok-alice-xxxxxxxx': { uid: 'u-alice', username: 'alice' }, 'tok-bob-xxxxxxxxxx': { uid: 'u-bob', username: 'bob' }, 'tok-zoubga-xxxxxxx': { uid: 'u-z', username: 'Zoubga' } };
 const PI = 'https://api.minepi.com/v2';
 
 function reply(status, body) { return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } }); }
@@ -38,13 +38,13 @@ process.env.DATABASE_PATH = path.join(testDbDir, 'test.db');
 process.env.NODE_ENV = 'production';
 process.env.PI_SANDBOX = 'false';
 process.env.PI_NETWORK = 'mainnet';
-process.env.ADMIN_USERNAMES = '@zougba, hilaila';
+process.env.ADMIN_USERNAMES = '@zoubga, hilaila';
 await import(path.join(projectDir, 'server/index.js'));
 await new Promise(r => setTimeout(r, 300));
 
 const base = 'http://127.0.0.1:3199';
 const post = async (p, body) => { const r = await realFetch(base + p, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); return { status: r.status, body: await r.json() }; };
-const alice = 'tok-alice-xxxxxxxx', bob = 'tok-bob-xxxxxxxxxx', zougba = 'tok-zougba-xxxxxxx';
+const alice = 'tok-alice-xxxxxxxx', bob = 'tok-bob-xxxxxxxxxx', zoubga = 'tok-zoubga-xxxxxxx';
 const results = [];
 const check = (name, fn) => results.push([name, fn]);
 
@@ -97,7 +97,7 @@ check('paiement annulé par l’utilisateur', async () => {
 });
 check('connexion : rôle administrateur indiqué', async () => {
   assert.equal((await post('/api/pi-auth', { accessToken: alice })).body.isAdmin, false);
-  assert.equal((await post('/api/pi-auth', { accessToken: zougba })).body.isAdmin, true);
+  assert.equal((await post('/api/pi-auth', { accessToken: zoubga })).body.isAdmin, true);
 });
 check('mes inscriptions : uniquement celles du compte connecté', async () => {
   let r = await post('/api/my-orders', { accessToken: alice });
@@ -116,7 +116,7 @@ check('administration refusée à un apprenant', async () => {
   assert.equal(r.status, 403);
 });
 check('administration : inscriptions et totaux', async () => {
-  const r = await post('/api/admin/orders', { accessToken: zougba });
+  const r = await post('/api/admin/orders', { accessToken: zoubga });
   assert.equal(r.status, 200);
   const s = r.body.summary;
   assert.equal(s.orders, 4); assert.equal(s.completed, 3); assert.equal(s.cancelled, 1); assert.equal(s.pending, 0);
@@ -126,7 +126,7 @@ check('administration : inscriptions et totaux', async () => {
 });
 check('état technique : administration configurée', async () => {
   const r = await realFetch(base + '/api/health'); const h = await r.json();
-  assert.equal(h.adminConfigured, true); assert.equal(JSON.stringify(h).includes('zougba'), false);
+  assert.equal(h.adminConfigured, true); assert.equal(JSON.stringify(h).includes('zoubga'), false);
 });
 const get = async (p) => { const r = await realFetch(base + p); return { status: r.status, body: await r.json() }; };
 const ctx = {};
@@ -192,7 +192,7 @@ check('traçabilité publique : sans donnée de compte, formations sur accord', 
   assert.equal((await get('/api/trace?code=BSME-22222222')).status, 404);
 });
 check('administration : compteurs de la chaîne', async () => {
-  const r = await post('/api/admin/orders', { accessToken: zougba });
+  const r = await post('/api/admin/orders', { accessToken: zoubga });
   assert.deepEqual(r.body.chain, { farms: 2, plots: 2, lots: 1, events: 2 });
 });
 // --- BioStar Academy, BioSmart, contact, administration ---
@@ -204,7 +204,7 @@ check('académie : leçons réservées aux inscrits', async () => {
   const f = r.body.courses.find((c) => c.id === 'fondamentaux-agrobio');
   assert.equal(f.enrolled, true); assert.ok(f.modules[0].points.length > 0); assert.equal(f.done, 0);
   assert.equal(r.body.courses.find((c) => c.id === 'apiculture').enrolled, false);
-  r = await post('/api/academy', { accessToken: zougba });
+  r = await post('/api/academy', { accessToken: zoubga });
   assert.ok(r.body.courses.every((c) => c.preview && c.modules[0].points), 'aperçu complet pour le promoteur');
 });
 check('académie : progression, module pratique et compte non inscrit', async () => {
@@ -227,15 +227,15 @@ check('académie : progression, module pratique et compte non inscrit', async ()
 });
 check('administration : validation pratique et attestation délivrée', async () => {
   assert.equal((await post('/api/admin/academy', { accessToken: alice })).status, 403);
-  let r = await post('/api/admin/academy', { accessToken: zougba });
+  let r = await post('/api/admin/academy', { accessToken: zoubga });
   assert.equal(r.status, 200);
   const v = r.body.validations.find((x) => x.username === 'alice' && x.courseId === 'fondamentaux-agrobio');
   assert.ok(v); assert.equal(v.moduleIndex, ctx.practical); assert.ok(v.moduleTitle);
   assert.equal((await post('/api/admin/validate', { accessToken: alice, username: 'alice', courseId: 'fondamentaux-agrobio', moduleIndex: ctx.practical, decision: 'approve' })).status, 403);
-  r = await post('/api/admin/validate', { accessToken: zougba, username: 'alice', courseId: 'fondamentaux-agrobio', moduleIndex: ctx.practical, decision: 'approve' });
+  r = await post('/api/admin/validate', { accessToken: zoubga, username: 'alice', courseId: 'fondamentaux-agrobio', moduleIndex: ctx.practical, decision: 'approve' });
   assert.equal(r.status, 200, JSON.stringify(r.body)); assert.match(r.body.attestation.code, /^ATT-[2-9A-HJKMNP-Z]{8}$/);
   ctx.att = r.body.attestation.code;
-  assert.equal((await post('/api/admin/validate', { accessToken: zougba, username: 'alice', courseId: 'fondamentaux-agrobio', moduleIndex: ctx.practical, decision: 'approve' })).status, 404, 'validation en double refusée');
+  assert.equal((await post('/api/admin/validate', { accessToken: zoubga, username: 'alice', courseId: 'fondamentaux-agrobio', moduleIndex: ctx.practical, decision: 'approve' })).status, 404, 'validation en double refusée');
   r = await post('/api/academy', { accessToken: alice });
   assert.equal(r.body.attestations.length, 1); assert.equal(r.body.courses.find((c) => c.id === 'fondamentaux-agrobio').attestation.code, ctx.att);
   assert.equal((await post('/api/academy/progress', { accessToken: alice, courseId: 'fondamentaux-agrobio', moduleIndex: 0, action: 'undo' })).status, 409, 'progression figée après attestation');
@@ -259,10 +259,10 @@ check('BioSmart : demande au conseiller, réponse du promoteur', async () => {
   let r = await post('/api/advice', { accessToken: alice, advice: { crop: 'Tomate', symptom: 'Feuilles jaunes et enroulées', cause: 'Aleurodes', message: 'Depuis une semaine.' } });
   assert.equal(r.status, 200, JSON.stringify(r.body)); const id = r.body.advice.id;
   assert.equal(r.body.advice.username, undefined);
-  r = await post('/api/admin/academy', { accessToken: zougba });
+  r = await post('/api/admin/academy', { accessToken: zoubga });
   assert.equal(r.body.advice[0].username, 'alice'); assert.equal(r.body.advice[0].status, 'open');
   assert.equal((await post('/api/admin/answer', { accessToken: bob, id, answer: 'X' })).status, 403);
-  r = await post('/api/admin/answer', { accessToken: zougba, id, answer: 'Posez des pièges jaunes et traitez au neem tous les 7 jours.' });
+  r = await post('/api/admin/answer', { accessToken: zoubga, id, answer: 'Posez des pièges jaunes et traitez au neem tous les 7 jours.' });
   assert.equal(r.status, 200); assert.equal(r.body.advice.status, 'answered');
   r = await post('/api/advice/mine', { accessToken: alice });
   assert.equal(r.body.advice.length, 1); assert.match(r.body.advice[0].answer, /pièges jaunes/);
@@ -271,7 +271,7 @@ check('BioSmart : demande au conseiller, réponse du promoteur', async () => {
 check('contact : message à l’Institut', async () => {
   assert.equal((await post('/api/contact', { accessToken: bob, message: 'Bon' })).status, 400);
   assert.equal((await post('/api/contact', { accessToken: bob, message: 'Bonjour, je souhaite rejoindre une ferme-école.' })).status, 200);
-  const r = await post('/api/admin/academy', { accessToken: zougba });
+  const r = await post('/api/admin/academy', { accessToken: zoubga });
   assert.equal(r.body.messages[0].username, 'bob'); assert.equal(r.body.attestations, 1);
 });
 check('jeton Pi invalide refusé', async () => {

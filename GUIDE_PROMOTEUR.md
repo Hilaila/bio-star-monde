@@ -1,4 +1,4 @@
-# Guide du promoteur — M. ZOUGBA NATHANAËL
+# Guide du promoteur — M. ZOUBGA NATHANAËL
 
 Ce guide liste ce que vous seul pouvez faire, parce que cela se fait avec votre compte Pi et votre identité. Tout le reste (serveur, code, intégration) est pris en charge par Hilaila.
 

@@ -76,7 +76,7 @@ export function validateCatalogue(items) {
   });
 }
 
-// Liste des comptes Pi autorisés à l'administration, par exemple « zougba, hilaila » (sans @, casse ignorée).
+// Liste des comptes Pi autorisés à l'administration, par exemple « 4Nathanel, Hilaila » (sans @, casse ignorée).
 export function parseAdminUsernames(value) {
   return String(value || '').split(/[\s,;]+/).map((u) => u.replace(/^@/, '').trim().toLowerCase()).filter(Boolean);
 }

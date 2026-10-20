@@ -80,7 +80,7 @@ function appwrite(url, opts) {
 
 // --- API Pi simulée ---
 const payments = new Map();
-const users = { 'Bearer tok-alice-1234': { uid: 'u1', username: 'alice' }, 'Bearer tok-zougba-1234': { uid: 'uz', username: 'Zougba' }, 'Bearer tok-bob-12345': { uid: 'ub', username: 'bob' } };
+const users = { 'Bearer tok-alice-1234': { uid: 'u1', username: 'alice' }, 'Bearer tok-zoubga-1234': { uid: 'uz', username: 'Zoubga' }, 'Bearer tok-bob-12345': { uid: 'ub', username: 'bob' } };
 function pi(url, opts) {
   if (url.endsWith('/v2/me')) return users[opts.headers.Authorization] ? reply(200, users[opts.headers.Authorization]) : reply(401, {});
   assert.equal(opts.headers.Authorization, 'Key pi-test');
@@ -91,7 +91,7 @@ function pi(url, opts) {
 }
 globalThis.fetch = async (url, opts = {}) => { const s = String(url); return s.startsWith(ENDPOINT) ? appwrite(s, opts) : pi(s, opts); };
 
-Object.assign(process.env, { APPWRITE_FUNCTION_API_ENDPOINT: ENDPOINT, APPWRITE_FUNCTION_PROJECT_ID: 'proj-1', PI_API_KEY: 'pi-test', ADMIN_USERNAMES: 'zougba' });
+Object.assign(process.env, { APPWRITE_FUNCTION_API_ENDPOINT: ENDPOINT, APPWRITE_FUNCTION_PROJECT_ID: 'proj-1', PI_API_KEY: 'pi-test', ADMIN_USERNAMES: 'zoubga' });
 const { default: main } = await import(path.join(repo, 'appwrite/main.js'));
 const { TABLES } = await import(path.join(repo, 'core/schema.js'));
 
@@ -189,23 +189,23 @@ for (const m of bio.modules) {
 }
 const progressRows = db.tables.get('progress').rows;
 assert.equal(progressRows.length, bio.modules.length); assert.ok(progressRows.every((x) => x.$id.length <= 36 && /^[a-z0-9]+$/.test(x.$id)), 'identifiants de ligne valides pour Appwrite');
-r = await run('POST', '/api/admin/academy', { accessToken: 'tok-zougba-1234' });
+r = await run('POST', '/api/admin/academy', { accessToken: 'tok-zoubga-1234' });
 assert.equal(r.json.validations.length, 1);
 const val = r.json.validations[0];
-r = await run('POST', '/api/admin/validate', { accessToken: 'tok-zougba-1234', username: val.username, courseId: val.courseId, moduleIndex: val.moduleIndex, decision: 'approve' });
+r = await run('POST', '/api/admin/validate', { accessToken: 'tok-zoubga-1234', username: val.username, courseId: val.courseId, moduleIndex: val.moduleIndex, decision: 'approve' });
 assert.equal(r.status, 200, JSON.stringify(r)); const att = r.json.attestation.code;
 assert.equal(db.tables.get('attestations').rows[0].$id, att);
 r = await run('GET', '/api/attestation', null, 'code=' + att);
 assert.equal(r.json.valid, true); assert.equal(r.json.attestation.courseTitle, 'Production et usage du biochar');
 r = await run('POST', '/api/advice', { accessToken: 'tok-alice-1234', advice: { crop: 'Maïs', symptom: 'Feuilles trouées en fenêtres' } });
 assert.equal(r.status, 200, JSON.stringify(r));
-r = await run('POST', '/api/admin/answer', { accessToken: 'tok-zougba-1234', id: r.json.advice.id, answer: 'Inspectez 20 plants et traitez au neem.' });
+r = await run('POST', '/api/admin/answer', { accessToken: 'tok-zoubga-1234', id: r.json.advice.id, answer: 'Inspectez 20 plants et traitez au neem.' });
 assert.equal(r.json.advice.status, 'answered');
 r = await run('POST', '/api/contact', { accessToken: 'tok-alice-1234', message: 'Merci pour la formation.' }); assert.equal(r.status, 200);
 ok('académie, attestation, conseil et messages sur Appwrite');
 
 for (let i = 0; i < 230; i++) orders().push({ $id: 'x' + i, username: 'carol', product_id: 'diagnostic-parcelle', amount: 0.2, memo: 'Diagnostic', payment_id: 'px' + i, txid: 'tx' + i, status: 'completed', created_at: new Date(Date.UTC(2026, 9, 1, 0, i)).toISOString() });
-r = await run('POST', '/api/admin/orders', { accessToken: 'tok-zougba-1234' });
+r = await run('POST', '/api/admin/orders', { accessToken: 'tok-zoubga-1234' });
 assert.equal(r.status, 200, JSON.stringify(r)); assert.equal(r.json.summary.orders, 233); assert.equal(r.json.summary.completed, 232); assert.equal(r.json.summary.cancelled, 1);
 assert.equal(r.json.summary.totalPi, 47.3); assert.ok(r.json.orders.every((o, i, a) => i === 0 || a[i - 1].createdAt >= o.createdAt), 'plus récentes d’abord');
 assert.deepEqual(r.json.chain, { farms: 1, plots: 1, lots: 1, events: 2 });

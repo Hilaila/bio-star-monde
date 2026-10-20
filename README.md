@@ -16,9 +16,9 @@ Le projet entend favoriser la transmission des connaissances, l’innovation agr
 
 | Élément | Responsable |
 | --- | --- |
-| Promoteur de Bio Star Monde Éden | M. ZOUGBA NATHANAËL |
-| Propriété du projet et droits associés | M. ZOUGBA NATHANAËL, selon l’accord entre les parties |
-| Compte Pi Developer Portal | M. ZOUGBA NATHANAËL, promoteur enregistré |
+| Promoteur de Bio Star Monde Éden | M. ZOUBGA NATHANAËL |
+| Propriété du projet et droits associés | M. ZOUBGA NATHANAËL, selon l’accord entre les parties |
+| Compte Pi Developer Portal | M. ZOUBGA NATHANAËL, promoteur enregistré |
 | Dépôt GitHub et gestion technique | Hilaila |
 | Développement et maintenance | Hilaila, selon l’accord entre les parties |
 | Contact officiel | [zoubgaefils@gmail.com](mailto:zoubgaefils@gmail.com) |
@@ -84,12 +84,12 @@ Ne publiez jamais le fichier `.env`, les clés API, les mots de passe ou d’aut
 
 | Étape | Action | Responsable |
 | --- | --- | --- |
-| 1 | KYC validé, portefeuille Mainnet migré, Developer Portal ouvert (`develop.pi` dans le Pi Browser). | M. ZOUGBA NATHANAËL |
-| 2 | Enregistrer l’application **Testnet**, déclarer les URL, transmettre la clé API Testnet. | M. ZOUGBA NATHANAËL, avec Hilaila |
+| 1 | KYC validé, portefeuille Mainnet migré, Developer Portal ouvert (`develop.pi` dans le Pi Browser). | M. ZOUBGA NATHANAËL |
+| 2 | Enregistrer l’application **Testnet**, déclarer les URL, transmettre la clé API Testnet. | M. ZOUBGA NATHANAËL, avec Hilaila |
 | 3 | Mettre en ligne la fonction Appwrite (voir DEPLOIEMENT_APPWRITE.md), puis tester dans le Pi Browser. | Hilaila |
 | 4 | Valider connexion, paiement, annulation et paiement incomplet. | Hilaila |
-| 5 | Valider le catalogue (`core/catalogue.json`), les prix en FCFA, les conditions et la politique de confidentialité. | M. ZOUGBA NATHANAËL ; intégration par Hilaila |
-| 6 | Créer l’application **Mainnet**, vérifier le domaine (`PI_VALIDATION_KEY`), connecter le portefeuille, générer une nouvelle clé API, passer `PI_NETWORK=mainnet`. | M. ZOUGBA NATHANAËL ; serveur par Hilaila |
+| 5 | Valider le catalogue (`core/catalogue.json`), les prix en FCFA, les conditions et la politique de confidentialité. | M. ZOUBGA NATHANAËL ; intégration par Hilaila |
+| 6 | Créer l’application **Mainnet**, vérifier le domaine (`PI_VALIDATION_KEY`), connecter le portefeuille, générer une nouvelle clé API, passer `PI_NETWORK=mainnet`. | M. ZOUBGA NATHANAËL ; serveur par Hilaila |
 | 7 | Tester un vrai paiement de petit montant, puis demander le référencement. | Les deux |
 
 Variables Pi du fichier `.env` :
@@ -137,7 +137,7 @@ Liste de contrôle avant soumission : [PI_APPROVAL_CHECKLIST.md](PI_APPROVAL_CHE
 
 Pour toute information concernant Bio Star Monde Éden :
 
-**M. ZOUGBA NATHANAËL**, promoteur — [zoubgaefils@gmail.com](mailto:zoubgaefils@gmail.com)
+**M. ZOUBGA NATHANAËL**, promoteur — [zoubgaefils@gmail.com](mailto:zoubgaefils@gmail.com)
 
 Développement et maintenance : Hilaila.
 

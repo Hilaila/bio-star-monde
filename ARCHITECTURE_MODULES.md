@@ -59,4 +59,4 @@ L'application n'est ni un simple catalogue de formations ni une boutique agricol
 - **BioMarket** : reverser des Pi à d'autres vendeurs suppose des paiements de l'application vers les utilisateurs, que Pi limite, et un cadre juridique. D'où le démarrage avec les seuls produits de l'Institut.
 - **Intelligence artificielle** : un assistant appelle une API payante, côté serveur. On commence par des fiches fondées sur des règles validées par le promoteur ; l'assistant vient ensuite, avec un budget fixé.
 - **Données personnelles** : la localisation des exploitations et les coordonnées des partenaires relèvent de la loi n°001-2021/AN ; déclaration à la CIL avant l'ouverture.
-- **Contenus** : cours, fiches BioSmart et prix sont fournis et validés par M. ZOUGBA NATHANAËL.
+- **Contenus** : cours, fiches BioSmart et prix sont fournis et validés par M. ZOUBGA NATHANAËL.

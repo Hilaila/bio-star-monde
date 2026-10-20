@@ -27,7 +27,7 @@ Une seule fonction Appwrite sert les pages, l'API Pi et la base de données. Ell
 1. **Environment variables**, puis **Create variable** :
    - `PI_API_KEY` = clé API de l'application Pi Testnet, en cochant **Secret** ;
    - `PI_NETWORK` = `testnet` ;
-   - `ADMIN_USERNAMES` = nom d’utilisateur Pi de M. ZOUGBA NATHANAËL, sans @ (ajoutez celui de Hilaila après une virgule si l’accord le prévoit).
+   - `ADMIN_USERNAMES` = `4Nathanel`, nom d’utilisateur Pi de M. ZOUBGA NATHANAËL, sans @ (ajoutez celui de Hilaila après une virgule si l’accord le prévoit).
 2. **Timeout** : 30 secondes.
 3. Onglet **Deployments**, menu ⋯ du dernier déploiement, puis **Redeploy** : les variables ne s'appliquent qu'après un redéploiement.
 
@@ -40,9 +40,9 @@ Une seule fonction Appwrite sert les pages, l'API Pi et la base de données. Ell
 
 ## 5. Brancher sur Pi
 
-1. M. ZOUGBA NATHANAËL recopie l'adresse dans le champ **Production URL** de l'application Testnet sur develop.pi.
+1. M. ZOUBGA NATHANAËL recopie l'adresse dans le champ **Production URL** de l'application Testnet sur develop.pi.
 2. Dans le Pi Browser, ouvrez l'application, appuyez sur **Connexion Pi**, puis payez une petite offre (0,2 ou 0,3 Pi de test) avec un portefeuille Testnet.
-3. Après le paiement : la section **Mes inscriptions** affiche l’inscription « Confirmée ». Avec le compte de M. ZOUGBA, la section **Administration** affiche les recettes.
+3. Après le paiement : la section **Mes inscriptions** affiche l’inscription « Confirmée ». Avec le compte de M. ZOUBGA, la section **Administration** affiche les recettes.
 4. En cas d'erreur : onglet **Executions** de la fonction, pour lire les journaux.
 
 ## 6. Après chaque nouvelle version
@@ -59,11 +59,11 @@ Pi ne vérifie une adresse que pour une seule application. On garde `https://bio
    - `PI_API_KEY` = clé API de l'application **Testnet** (cochez **Secret**) ;
    - `PI_NETWORK` = `testnet` ;
    - `APPWRITE_DATABASE_ID` = `biostar_test` ;
-   - `ADMIN_USERNAMES` = nom d'utilisateur Pi de M. ZOUGBA NATHANAËL (et celui de Hilaila si l'accord le prévoit) ;
-   - `PI_VALIDATION_KEY` = clé « Verify domain » de l'application **Testnet**.
+   - `ADMIN_USERNAMES` = `4Nathanel`, nom d'utilisateur Pi de M. ZOUBGA NATHANAËL (et celui de Hilaila si l'accord le prévoit) ;
+   - `PI_VALIDATION_KEY` = clé « Verify domain » de l'application **Testnet**. Ne la mettez jamais sur la fonction d'origine : l'adresse de production serait alors vérifiée pour le Testnet.
 3. **Timeout** : 30 secondes, puis **Redeploy**.
 4. Onglet **Domains** : copiez la nouvelle adresse et ouvrez une fois `<nouvelle adresse>/api/setup`. La réponse doit commencer par « Base prête : biostar_test ».
-5. Sur develop.pi, M. ZOUGBA remplace l'adresse de l'application **Testnet** (onglet **Domain**) par la nouvelle, puis appuie sur **Verify**.
+5. Sur develop.pi, M. ZOUBGA remplace l'adresse de l'application **Testnet** (onglet **Domain**) par la nouvelle, puis appuie sur **Verify**.
 6. Quand l'application **Mainnet** existe, la fonction d'origine `bio-star-monde` devient la production : `PI_API_KEY` = clé de l'application Mainnet, `PI_NETWORK` = `mainnet`, `PI_VALIDATION_KEY` = clé « Verify domain » de l'application Mainnet, `APPWRITE_DATABASE_ID` = `biostar_mainnet` (base neuve, sans aucune commande de test). **Redeploy**, puis ouvrez une fois `https://bio-star-monde.fra.appwrite.run/api/setup`.
 
 Les deux fonctions se mettent à jour ensemble à chaque envoi sur `main`.

@@ -1,6 +1,6 @@
 # Fiche de l'application dans Pi — Bio Star Monde Éden
 
-Tout ce qu'il faut saisir dans le Developer Portal (`develop.pi`, compte de M. ZOUGBA NATHANAËL) et dans la demande de référencement. Les textes destinés à l'équipe de revue de Pi sont donnés en français et en anglais : copiez-les tels quels.
+Tout ce qu'il faut saisir dans le Developer Portal (`develop.pi`, compte de M. ZOUBGA NATHANAËL) et dans la demande de référencement. Les textes destinés à l'équipe de revue de Pi sont donnés en français et en anglais : copiez-les tels quels.
 
 L'approbation reste une décision de la Pi Core Team. Cochez d'abord [PI_APPROVAL_CHECKLIST.md](../../PI_APPROVAL_CHECKLIST.md).
 
@@ -11,7 +11,7 @@ L'approbation reste une décision de la Pi Core Team. Cochez d'abord [PI_APPROVA
 | Nom | Bio Star Monde Éden |
 | Version | 1.7.0 |
 | Catégorie | Éducation (à défaut : Marketplace) |
-| Propriétaire et promoteur | M. ZOUGBA NATHANAËL — Institut International Moderne Innovant Biologique d'Agriculture et d'Élevage |
+| Propriétaire et promoteur | M. ZOUBGA NATHANAËL — Institut International Moderne Innovant Biologique d'Agriculture et d'Élevage |
 | Développement et maintenance | Hilaila |
 | E-mail de contact | zoubgaefils@gmail.com |
 | Pays | Burkina Faso (siège de l'Institut) |
@@ -32,6 +32,8 @@ L'approbation reste une décision de la Pi Core Team. Cochez d'abord [PI_APPROVA
 | Intro Preview Image | `logo-1024.png` |
 | Previews | `1-accueil.png`, `2-academie.png`, `3-biosmart-diagnostic.png`, `4-tracabilite-lot.png`, `5-attestation-verifiee.png`, dans cet ordre |
 | Pi Exclusive Transactions, Pi SDK Exclusive Authentication | Cochées |
+| Developer Public Name | ZOUBGA NATHANAEL (orthographe de la pièce KYC) |
+| Contact Email | facultatif ; l'application affiche zoubgaefils@gmail.com |
 | PiOS Compatible | No |
 | Pi Sign-In | Rien à remplir : il sert à se connecter avec Pi hors de Pi Browser, ce que l'application ne fait pas |
 
@@ -75,7 +77,7 @@ Les 6 images respectent les limites du portail : PNG, au moins 400 × 400 px, mo
 | Exigence Pi | Dans Bio Star Monde Éden |
 | --- | --- |
 | Application complète, interface professionnelle | Catalogue, BioStar Academy, BioSmart, exploitation et lots, BioImpact, contact, administration. 2 suites de tests automatisés (`npm test`), serveur Node et fonction Appwrite. |
-| KYC du développeur | Validé pour le compte Pi de M. ZOUGBA NATHANAËL (confirmé le 19 octobre 2026). |
+| KYC du développeur | Validé pour le compte Pi de M. ZOUBGA NATHANAËL (confirmé le 19 octobre 2026). |
 | Pas d'usage abusif de la marque Pi | Nom sans « Pi ». Domaine `bio-star-monde…`, qui ne commence pas par « pi ». Logo officiel de l'Institut (BioStarMondeEden · IIMIBAE), sans élément de la marque Pi. |
 | Connexion Pi uniquement | `Pi.authenticate(['username', 'payments'])`. Le jeton est vérifié par le serveur auprès de `https://api.minepi.com/v2/me` à chaque appel. Ni e-mail, ni mot de passe, ni autre fournisseur. |
 | Transactions en Pi uniquement | Prix en Pi, `Pi.createPayment`, approbation et finalisation par le serveur avec la clé `PI_API_KEY`. Le prix vient du catalogue serveur ; montant, compte et transaction sont contrôlés auprès de Pi. Paiements incomplets repris. |

@@ -2,7 +2,7 @@
 
 L'approbation reste une décision exclusive de la Pi Core Team. Vérifiez les exigences et la documentation officielles (Pi Docs, « Mainnet Listing Requirements ») au moment de la soumission.
 
-## Comptes — M. ZOUGBA NATHANAËL
+## Comptes — M. ZOUBGA NATHANAËL
 
 - [x] KYC validé (confirmé le 19 octobre 2026).
 - [ ] Portefeuille Mainnet migré.
@@ -21,7 +21,7 @@ L'approbation reste une décision exclusive de la Pi Core Team. Vérifiez les ex
 - [ ] Tests de sécurité, sauvegardes et journalisation réalisés.
 - [ ] Aucun secret, jeton d'accès ou donnée personnelle exposé dans le navigateur ou les journaux.
 
-## Contenus — M. ZOUGBA NATHANAËL, intégration par Hilaila
+## Contenus — M. ZOUBGA NATHANAËL, intégration par Hilaila
 
 - [ ] Catalogue, prix, formations et produits réels ; aucune page « bientôt disponible ».
 - [ ] Politique de confidentialité et conditions d'utilisation adaptées aux pratiques réelles.

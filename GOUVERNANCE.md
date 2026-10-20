@@ -1,14 +1,14 @@
 # Bio Star Monde Éden — organisation du projet
 
-M. ZOUGBA NATHANAËL porte le projet et en détient les droits. Hilaila en assure la réalisation technique, selon l'accord conclu entre eux.
+M. ZOUBGA NATHANAËL porte le projet et en détient les droits. Hilaila en assure la réalisation technique, selon l'accord conclu entre eux.
 
 ## Rôles
 
 | Élément | Responsable |
 | --- | --- |
-| Promoteur de Bio Star Monde Éden | M. ZOUGBA NATHANAËL |
-| Propriété du projet et droits associés | M. ZOUGBA NATHANAËL, selon l'accord entre les parties |
-| Compte Pi Developer Portal | M. ZOUGBA NATHANAËL, promoteur enregistré |
+| Promoteur de Bio Star Monde Éden | M. ZOUBGA NATHANAËL |
+| Propriété du projet et droits associés | M. ZOUBGA NATHANAËL, selon l'accord entre les parties |
+| Compte Pi Developer Portal | M. ZOUBGA NATHANAËL, promoteur enregistré |
 | Dépôt GitHub et gestion technique | Hilaila |
 | Développement et maintenance | Hilaila, selon l'accord entre les parties |
 | Contact officiel | zoubgaefils@gmail.com |
@@ -17,11 +17,11 @@ M. ZOUGBA NATHANAËL porte le projet et en détient les droits. Hilaila en assur
 
 | Accès | Titulaire | Utilisé par | Règle |
 | --- | --- | --- | --- |
-| Compte Pi Developer Portal | M. ZOUGBA NATHANAËL | M. ZOUGBA NATHANAËL | Enregistre les applications Testnet et Mainnet. KYC validé et portefeuille Mainnet migré obligatoires avant le lancement. |
-| Portefeuille de l'application (Mainnet) | M. ZOUGBA NATHANAËL | — | Reçoit les paiements en Pi. Sa phrase secrète (passphrase) n'est jamais communiquée à personne, développeur compris. |
-| Clés API Pi (Testnet, puis Mainnet) | Générées par M. ZOUGBA NATHANAËL | Hilaila, côté serveur | Transmises par un canal sécurisé, stockées uniquement dans la variable secrète `PI_API_KEY` de l'hébergement. Régénérées en cas de fuite ou de fin de collaboration. |
+| Compte Pi Developer Portal | M. ZOUBGA NATHANAËL | M. ZOUBGA NATHANAËL | Enregistre les applications Testnet et Mainnet. KYC validé et portefeuille Mainnet migré obligatoires avant le lancement. |
+| Portefeuille de l'application (Mainnet) | M. ZOUBGA NATHANAËL | — | Reçoit les paiements en Pi. Sa phrase secrète (passphrase) n'est jamais communiquée à personne, développeur compris. |
+| Clés API Pi (Testnet, puis Mainnet) | Générées par M. ZOUBGA NATHANAËL | Hilaila, côté serveur | Transmises par un canal sécurisé, stockées uniquement dans la variable secrète `PI_API_KEY` de l'hébergement. Régénérées en cas de fuite ou de fin de collaboration. |
 | Projet Appwrite (pages, API et base de données) | Hilaila | Hilaila | Clé API Pi enregistrée comme variable secrète de la fonction. Transfert au promoteur à prévoir dans l'accord. |
-| Espace Administration de l'application | M. ZOUGBA NATHANAËL | Comptes Pi listés dans `ADMIN_USERNAMES` | Accès vérifié auprès de Pi à chaque ouverture. Hilaila n'y figure que si l'accord le prévoit. |
+| Espace Administration de l'application | M. ZOUBGA NATHANAËL | Comptes Pi listés dans `ADMIN_USERNAMES` | Accès vérifié auprès de Pi à chaque ouverture. Hilaila n'y figure que si l'accord le prévoit. |
 | Clé de validation du domaine | Fournie par le Developer Portal | Hilaila | Variable `PI_VALIDATION_KEY`, servie sur `/validation-key.txt`. |
 | Dépôt GitHub | Hilaila | Hilaila | Gestion technique. Accès en lecture recommandé pour le promoteur. |
 | Hébergement et nom de domaine | À fixer dans l'accord | Hilaila | Le nom de domaine gagne à être enregistré au nom du promoteur ou de l'Institut, propriétaire du projet. |
