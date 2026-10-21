@@ -18,24 +18,33 @@ function toast(message) {
 }
 function status(message) { $('#status').textContent = message; }
 function networkLabel() { return (piConfig.network === 'mainnet' ? 'Mainnet' : 'Testnet') + (piConfig.sandbox ? ' (Sandbox)' : ''); }
+function productCard(p) {
+  const card = document.createElement('article'); card.className = 'product';
+  const cat = document.createElement('div'); cat.className = 'category'; cat.textContent = p.category;
+  const title = document.createElement('h3'); title.textContent = p.name;
+  const desc = document.createElement('p'); desc.textContent = p.description;
+  const meta = document.createElement('p'); meta.className = 'meta'; meta.textContent = [p.axis, p.duration, p.format].filter(Boolean).join(' · ');
+  const price = document.createElement('div'); price.className = 'price'; price.textContent = p.amount.toLocaleString('fr-FR') + ' Pi';
+  const btn = document.createElement('button'); btn.className = 'button'; btn.textContent = p.category === 'Service' ? 'Réserver en Pi' : 'S’inscrire en Pi'; btn.type = 'button';
+  btn.addEventListener('click', () => buy(p, btn));
+  card.append(cat, title, desc, meta, price, btn);
+  return card;
+}
+// Formations dans l'Académie, services dans le Marché (tout dans le catalogue si la page n'a pas d'emplacement « services »).
 function showProducts(products) {
-  const root = $('#products');
-  root.replaceChildren();
-  for (const p of products) {
-    const card = document.createElement('article'); card.className = 'product';
-    const cat = document.createElement('div'); cat.className = 'category'; cat.textContent = p.category;
-    const title = document.createElement('h3'); title.textContent = p.name;
-    const desc = document.createElement('p'); desc.textContent = p.description;
-    const meta = document.createElement('p'); meta.className = 'meta'; meta.textContent = [p.axis, p.duration, p.format].filter(Boolean).join(' · ');
-    const price = document.createElement('div'); price.className = 'price'; price.textContent = p.amount.toLocaleString('fr-FR') + ' Pi';
-    const btn = document.createElement('button'); btn.className = 'button'; btn.textContent = p.category === 'Service' ? 'Réserver en Pi' : 'S’inscrire en Pi'; btn.type = 'button';
-    btn.addEventListener('click', () => buy(p, btn));
-    card.append(cat, title, desc, meta, price, btn); root.append(card);
-  }
+  const services = document.getElementById('services');
+  const formations = services ? products.filter((p) => p.category !== 'Service') : products;
+  $('#products').replaceChildren(...formations.map(productCard));
+  if (services) services.replaceChildren(...products.filter((p) => p.category === 'Service').map(productCard));
 }
 async function loadProducts() {
   try { const data = await api('/api/products'); showProducts(data.products); }
-  catch (e) { $('#products').textContent = 'Le catalogue est temporairement indisponible. ' + e.message; }
+  catch (e) {
+    const message = 'Le catalogue est temporairement indisponible. ' + e.message;
+    $('#products').replaceChildren(el('p', 'empty', message));
+    const services = document.getElementById('services');
+    if (services) services.replaceChildren(el('p', 'empty', message));
+  }
 }
 
 // --- Mes inscriptions et administration ---
@@ -117,9 +126,11 @@ function refreshSpaces() {
 function showSpaces() {
   $('#mes-inscriptions').hidden = false;
   $('#exploitation').hidden = false;
-  $('#nav-farm').hidden = false;
-  $('#nav-admin').hidden = !piIsAdmin;
+  for (const node of document.querySelectorAll('.login-needed')) node.hidden = true;
+  for (const node of document.querySelectorAll('.member-only')) node.hidden = false;
   $('#administration').hidden = !piIsAdmin;
+  const adminEntry = document.getElementById('admin-entry');
+  if (adminEntry) adminEntry.hidden = !piIsAdmin;
   refreshSpaces();
 }
 
@@ -185,6 +196,7 @@ async function connectPi() {
     piIsAdmin = Boolean(verified.isAdmin);
     status('Connecté avec Pi : @' + piUser.username + ' — ' + networkLabel());
     $('#connect').textContent = '@' + piUser.username;
+    $('#connect').classList.add('on');
     toast('Connexion Pi vérifiée côté serveur.');
     await processIncomplete();
     showSpaces();
@@ -235,15 +247,11 @@ async function buy(product, button) {
 }
 // Une fois connecté, le bouton du compte mène à « Mes inscriptions ».
 $('#connect').addEventListener('click', () => {
-  if (piUser) { $('#mes-inscriptions').scrollIntoView({ behavior: 'smooth' }); return; }
+  if (piUser) { goTo('mes-inscriptions'); return; }
   connectPi();
 });
-$('#nav-mine').addEventListener('click', async (event) => {
-  if (piUser) return;
-  event.preventDefault();
-  await connectPi();
-  if (piUser) $('#mes-inscriptions').scrollIntoView({ behavior: 'smooth' });
-});
+// Boutons « Connexion Pi » placés dans les écrans (accueil, exploitation).
+for (const button of document.querySelectorAll('[data-connect]')) button.addEventListener('click', () => connectPi());
 $('#refresh-mine').addEventListener('click', loadMine);
 $('#refresh-admin').addEventListener('click', () => { loadAdmin(); if (typeof loadAdminAcademy === 'function') loadAdminAcademy(); });
 $('#admin-filter').addEventListener('change', renderAdmin);

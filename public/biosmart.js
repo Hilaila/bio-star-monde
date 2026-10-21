@@ -84,6 +84,14 @@ function renderCalendar() {
   const legend = $('#cal-legend');
   legend.replaceChildren();
   for (const [k, label] of R.legend) { const item = el('span'); item.append(el('i', 'sw m-' + k), document.createTextNode(label)); legend.append(item); }
+  // Carte « Saison du moment » de l'accueil : mêmes données, même région.
+  if (document.getElementById('home-season')) {
+    $('#home-month').textContent = 'Saison du moment · ' + MONTHS[m] + ' ' + now.getFullYear();
+    $('#home-region').textContent = R.label;
+    $('#home-season').textContent = season.name;
+    $('#home-focus').textContent = season.focus;
+    $('#home-strip').replaceChildren(...Array.from(strip.children, (cell) => cell.cloneNode(true)));
+  }
 }
 
 // ===================== Recettes de bio-intrants =====================
@@ -297,7 +305,7 @@ $('#rec-to-carbon').addEventListener('click', () => {
   const res = r.calc(recipeAmount[r.id] ?? r.def, r.doses[recipeDose[r.id] || 0][1]);
   $('#carbon-bc').value = String(Math.round(res.biochar * 100) / 100);
   updateCarbon();
-  $('#bioimpact').scrollIntoView({ behavior: 'smooth' });
+  goTo('bioimpact');
   toast(qty(res.biochar, 't') + ' de biochar reportées dans BioImpact.');
 });
 
@@ -334,7 +342,7 @@ $('#contact-form').addEventListener('submit', async (event) => {
 // Préremplit le formulaire de contact (depuis « Mes inscriptions » par exemple).
 function writeToInstitute(text) {
   $('#contact-message').value = text;
-  $('#contact').scrollIntoView({ behavior: 'smooth' });
+  goTo('contact');
   $('#contact-message').focus({ preventScroll: true });
 }
 

@@ -91,11 +91,11 @@ Format demandé par la Pi Core Team : 750 × 1500 px. Les 6 images à télévers
 
 > **How to test Bio Star Monde Éden (Pi Testnet)**
 > 1. Open the app in Pi Browser and tap "Connexion Pi" (top right). Approve the username and payments scopes.
-> 2. Académie: open "Production et usage du biochar" and tap the enrol button (0.3 test-π). After payment the lessons open. Read each module and tap "J'ai terminé ce module". The last module is practical: tap "Demander la validation au formateur"; our trainer validates it within 24 hours (write from "Écrire à l'Institut" to speed it up). A certificate code (ATT-…) and QR code are then issued; scan the QR to open the public verification page.
-> 3. BioSmart: switch the calendar region, pick a recipe and change the area to see quantities, pick a crop and a symptom to get the organic treatment, then send a question to an adviser.
-> 4. Mon exploitation: create a farm, a plot and a lot; add steps; open the lot's public page and QR code.
-> 5. BioImpact: change the areas to see the carbon estimate.
-> 6. "Écrire à l'Institut": send a message to the Institute.
+> 2. "Académie" tab (bottom bar): open "Production et usage du biochar" and tap the enrol button (0.3 test-π). After payment the lessons open. Read each module and tap "J'ai terminé ce module". The last module is practical: tap "Demander la validation au formateur"; our trainer validates it within 24 hours (write from "Écrire à l'Institut" to speed it up). A certificate code (ATT-…) and QR code are then issued; scan the QR to open the public verification page.
+> 3. "Bio-Lab" tab: switch the calendar region, pick a recipe and change the area to see quantities, pick a crop and a symptom to get the organic treatment, then send a question to an adviser.
+> 4. "Marché" tab, "Mon exploitation": create a farm, a plot and a lot; add steps; open the lot's public page and QR code.
+> 5. "Carbone" tab: change the areas to see the carbon estimate.
+> 6. "Accueil" tab, "Écrire à l'Institut": send a message to the Institute.
 
 ## 5. Visuels
 

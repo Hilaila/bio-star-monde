@@ -63,3 +63,54 @@ function renderTimeline(events) {
 function traceUrl(code) {
   return location.origin + '/lot.html?code=' + encodeURIComponent(code);
 }
+
+// --- Navigation par écrans (Accueil, Académie, Bio-Lab, Marché, Carbone, Administration) ---
+// Chaque adresse « #… » ouvre l'écran qui contient l'élément visé, puis fait défiler jusqu'à lui.
+// Les pages sans écrans (traçabilité d'un lot, attestation, pages légales) ne sont pas concernées.
+const DEFAULT_SCREEN = 'accueil';
+function screenFor(id) {
+  const node = id ? document.getElementById(id) : null;
+  if (!node) return null;
+  const screen = node.classList.contains('screen') ? node : node.closest('.screen');
+  if (!screen || screen.hidden) return null; // écran inexistant ou réservé (administration sans droit)
+  return { node, screen };
+}
+function showScreen(screen) {
+  for (const s of document.querySelectorAll('.screen')) s.classList.toggle('is-active', s === screen);
+  for (const a of document.querySelectorAll('.nav a[data-screen]')) {
+    if (a.dataset.screen === screen.id) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  }
+}
+function route(id, { smooth = false } = {}) {
+  if (!document.querySelector('.screen')) return false;
+  const target = screenFor(id) || screenFor(DEFAULT_SCREEN);
+  if (!target) return false;
+  const changed = !target.screen.classList.contains('is-active');
+  showScreen(target.screen);
+  if (changed) window.scrollTo({ top: 0, behavior: 'auto' });
+  // Élément encore masqué (par exemple « Mon exploitation » avant la connexion) : on montre son bloc parent.
+  let anchor = target.node;
+  const hiddenAncestor = anchor.closest('[hidden]');
+  if (hiddenAncestor && hiddenAncestor !== target.screen) anchor = hiddenAncestor.parentElement || target.screen;
+  if (anchor !== target.screen) requestAnimationFrame(() => anchor.scrollIntoView({ behavior: smooth && !changed ? 'smooth' : 'auto', block: 'start' }));
+  return true;
+}
+// Ouvre un élément depuis le code (bouton, lien interne) et met l'adresse à jour.
+function goTo(id) {
+  if (!document.querySelector('.screen')) { const n = document.getElementById(id); if (n) n.scrollIntoView({ behavior: 'smooth' }); return; }
+  if (location.hash !== '#' + id) history.pushState(null, '', '#' + id);
+  route(id, { smooth: true });
+}
+if (document.querySelector('.screen')) {
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link) return;
+    const id = decodeURIComponent(link.getAttribute('href').slice(1));
+    if (!id || !screenFor(id)) return;
+    event.preventDefault();
+    goTo(id);
+  });
+  window.addEventListener('popstate', () => route(location.hash.slice(1)));
+  route(location.hash.slice(1));
+}
