@@ -34,6 +34,7 @@ function renderFarm() {
   if (!farm) {
     $('#farm-card').hidden = true;
     openFarmForm(null);
+    if (typeof updateHome === 'function') updateHome();
     return;
   }
   $('#farm-form').hidden = true;
@@ -41,6 +42,7 @@ function renderFarm() {
   renderFarmCard(farm);
   renderPlots();
   renderLots();
+  if (typeof updateHome === 'function') updateHome();
 }
 
 function renderFarmCard(farm) {

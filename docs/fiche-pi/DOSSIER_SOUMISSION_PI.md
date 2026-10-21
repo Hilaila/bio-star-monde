@@ -27,7 +27,7 @@ L'approbation reste une décision de la Pi Core Team. Cochez d'abord [PI_APPROVA
 
 | Champ du portail | À saisir |
 | --- | --- |
-| App Name (dans « App configuration ») | Bio Star Monde Éden |
+| App Name (dans « App configuration ») | BioStarMondeEden (déjà en place : c’est le nom affiché dans l’application et sur le logo) |
 | Version | 1.7.0 (sans « Version » ni point final) |
 | Description (dans « App configuration ») | Texte ci-dessous |
 | Intro Preview Image | `0-intro.png` (750 × 1500 px) |
@@ -90,12 +90,12 @@ Format demandé par la Pi Core Team : 750 × 1500 px. Les 6 images à télévers
 À coller dans le champ de notes pour les testeurs :
 
 > **How to test Bio Star Monde Éden (Pi Testnet)**
-> 1. Open the app in Pi Browser and tap "Connexion Pi" (top right). Approve the username and payments scopes.
-> 2. "Académie" tab (bottom bar): open "Production et usage du biochar" and tap the enrol button (0.3 test-π). After payment the lessons open. Read each module and tap "J'ai terminé ce module". The last module is practical: tap "Demander la validation au formateur"; our trainer validates it within 24 hours (write from "Écrire à l'Institut" to speed it up). A certificate code (ATT-…) and QR code are then issued; scan the QR to open the public verification page.
-> 3. "Bio-Lab" tab: switch the calendar region, pick a recipe and change the area to see quantities, pick a crop and a symptom to get the organic treatment, then send a question to an adviser.
-> 4. "Marché" tab, "Mon exploitation": create a farm, a plot and a lot; add steps; open the lot's public page and QR code.
-> 5. "Carbone" tab: change the areas to see the carbon estimate.
-> 6. "Accueil" tab, "Écrire à l'Institut": send a message to the Institute.
+> 1. Open the app in Pi Browser and tap the person icon (top right) or "+ Enregistrer une activité". Approve the username and payments scopes. The dot next to it turns green.
+> 2. "Formation" tab (bottom bar): open "Production et usage du biochar" and tap the enrol button (0.3 test-π). After payment the lessons open. Read each module and tap "J'ai terminé ce module". The last module is practical: tap "Demander la validation au formateur"; our trainer validates it within 24 hours (write from "Écrire à l'Institut" to speed it up). A certificate code (ATT-…) and QR code are then issued; scan the QR to open the public verification page.
+> 3. "Ferme" tab, "Fiches-conseils": switch the calendar region, pick a recipe and change the area to see quantities, pick a crop and a symptom to get the organic treatment, then send a question to an adviser.
+> 4. "Ferme" tab, "Mon exploitation": create a farm, a plot and a lot; add steps; open the lot's public page and QR code.
+> 5. "Données" tab: check your registry, download your data, verify a code (ATT-… or BSME-…) and change the areas in "BioImpact" to see the carbon estimate.
+> 6. "Données" tab, "BioPartners · Écrire à l'Institut": send a message to the Institute. The home screen then shows your counters and recent activity.
 
 ## 5. Visuels
 

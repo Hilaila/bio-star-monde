@@ -125,6 +125,7 @@ function renderAcademy() {
   atts.replaceChildren();
   if (!academyData.attestations.length) atts.append(el('p', 'empty', 'Terminez tous les modules d’une formation, modules pratiques validés compris, pour recevoir votre attestation.'));
   for (const a of academyData.attestations) atts.append(attestationCard(a));
+  if (typeof updateHome === 'function') updateHome();
 }
 
 async function changeProgress(courseId, moduleIndex, action, button) {

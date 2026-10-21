@@ -111,7 +111,7 @@ const ok = (n) => console.log('OK  ', n);
 const orders = () => db.tables.get('orders').rows;
 
 let r = await run('GET', '/');
-assert.equal(r.status, 200); assert.match(r.headers['Content-Type'], /text\/html/); assert.match(r.body, /Bio Star Monde Éden/); assert.match(r.headers['Content-Security-Policy'], /frame-ancestors 'self' https:\/\/\*\.minepi\.com/); ok('page d’accueil servie avec CSP compatible Pi');
+assert.equal(r.status, 200); assert.match(r.headers['Content-Type'], /text\/html/); assert.match(r.body, /BioStarMondeEden|Bio Star Monde Éden/); assert.match(r.headers['Content-Security-Policy'], /frame-ancestors 'self' https:\/\/\*\.minepi\.com/); ok('page d’accueil servie avec CSP compatible Pi');
 r = await run('GET', '/lot.html'); assert.equal(r.status, 200); assert.match(r.body, /BIOTRACE/); ok('page publique de traçabilité servie');
 r = await run('GET', '/qr.js'); assert.match(r.headers['Content-Type'], /javascript/); ok('générateur de code QR servi');
 r = await run('GET', '/config.js'); assert.match(r.body, /BSME_API_BASE = ''/); ok('config.js (API sur le même domaine)');

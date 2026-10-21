@@ -7,6 +7,7 @@ let piConfig = { sandbox: true, network: 'testnet' };
 let pendingIncomplete = null;
 let piIsAdmin = false;
 let adminData = null;
+let myOrders = [];
 const CONTACT_EMAIL = 'zoubgaefils@gmail.com';
 const STATUS_LABELS = { completed: 'Confirmée', approved: 'En attente', cancelled: 'Annulée' };
 
@@ -16,7 +17,11 @@ function toast(message) {
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 4200);
 }
-function status(message) { $('#status').textContent = message; }
+function status(message) {
+  $('#status').textContent = message;
+  const dot = document.getElementById('net-dot');
+  if (dot) { dot.classList.toggle('on', Boolean(piUser)); dot.classList.toggle('wait', !piUser && /cours/.test(message)); }
+}
 function networkLabel() { return (piConfig.network === 'mainnet' ? 'Mainnet' : 'Testnet') + (piConfig.sandbox ? ' (Sandbox)' : ''); }
 function productCard(p) {
   const card = document.createElement('article'); card.className = 'product';
@@ -75,6 +80,8 @@ async function loadMine() {
   const root = $('#my-orders');
   try {
     const data = await api('/api/my-orders', { accessToken: piAccessToken });
+    myOrders = data.orders;
+    updateHome();
     root.replaceChildren();
     if (!data.orders.length) root.append(el('p', 'empty', 'Aucune inscription pour le moment. Choisissez une offre dans le catalogue.'));
     for (const o of data.orders) root.append(orderCard(o, false));
@@ -195,8 +202,10 @@ async function connectPi() {
     const verified = await api('/api/pi-auth', { accessToken: piAccessToken });
     piIsAdmin = Boolean(verified.isAdmin);
     status('Connecté avec Pi : @' + piUser.username + ' — ' + networkLabel());
-    $('#connect').textContent = '@' + piUser.username;
+    const label = document.getElementById('connect-label');
+    if (label) label.textContent = '@' + piUser.username; else $('#connect').textContent = '@' + piUser.username;
     $('#connect').classList.add('on');
+    $('#connect').setAttribute('aria-label', 'Compte Pi @' + piUser.username + ' : mes inscriptions');
     toast('Connexion Pi vérifiée côté serveur.');
     await processIncomplete();
     showSpaces();
@@ -250,8 +259,85 @@ $('#connect').addEventListener('click', () => {
   if (piUser) { goTo('mes-inscriptions'); return; }
   connectPi();
 });
-// Boutons « Connexion Pi » placés dans les écrans (accueil, exploitation).
+// Boutons « Connexion Pi » placés dans les écrans (exploitation, registre).
 for (const button of document.querySelectorAll('[data-connect]')) button.addEventListener('click', () => connectPi());
+// Boutons qui demandent la connexion puis ouvrent un écran (« Enregistrer une activité »).
+for (const button of document.querySelectorAll('[data-connect-then]')) {
+  button.addEventListener('click', async () => {
+    if (!piUser) await connectPi();
+    if (piUser) goTo(button.dataset.connectThen);
+  });
+}
+const netButton = document.getElementById('net-btn');
+if (netButton) netButton.addEventListener('click', () => toast($('#status').textContent));
+
+// --- Accueil : compteurs et activité récente, à partir des données du compte Pi ---
+function setText(id, text) { const n = document.getElementById(id); if (n) n.textContent = text; }
+function updateHome() {
+  if (!document.getElementById('stat-farms')) return;
+  const farm = typeof farmData !== 'undefined' && farmData ? farmData : null;
+  const academy = typeof academyData !== 'undefined' && academyData ? academyData : null;
+  const plots = farm ? farm.plots || [] : [];
+  const lots = farm ? farm.lots || [] : [];
+  const areaPlots = plots.reduce((sum, p) => sum + (Number(p.areaHa) || 0), 0);
+  const area = farm && farm.farm && Number(farm.farm.areaHa) ? Number(farm.farm.areaHa) : areaPlots;
+  setText('stat-farms', farm && farm.farm ? '1' : '0');
+  setText('stat-farms-cap', piUser ? (farm && farm.farm ? farm.farm.name : 'Créez la fiche de votre exploitation') : 'Connectez-vous avec Pi');
+  setText('stat-courses', String(academy ? academy.courses.filter((c) => c.enrolled).length : 0));
+  setText('stat-lots', String(lots.length));
+  setText('stat-ha', area.toLocaleString('fr-FR', { maximumFractionDigits: 2 }));
+  const root = document.getElementById('home-activity');
+  if (!root) return;
+  if (!piUser) { root.replaceChildren(el('p', 'empty', 'Connectez-vous avec Pi pour voir votre activité.')); return; }
+  const items = [];
+  for (const o of myOrders) items.push({ at: o.createdAt, icon: '🎓', title: (o.status === 'completed' ? 'Inscription confirmée : ' : o.status === 'cancelled' ? 'Paiement annulé : ' : 'Paiement en cours : ') + o.name, sub: formatPi(o.amount) });
+  for (const l of lots) {
+    items.push({ at: l.createdAt, icon: '🧺', title: 'Lot créé : ' + l.product, sub: l.code });
+    for (const e of l.events || []) items.push({ at: e.createdAt || e.date, icon: '🔎', title: (EVENT_LABELS[e.type] || e.type) + ' · ' + l.product, sub: l.code });
+  }
+  for (const a of academy ? academy.attestations || [] : []) items.push({ at: a.issuedAt, icon: '📜', title: 'Attestation obtenue : ' + a.courseTitle, sub: a.code });
+  if (farm && farm.farm) items.push({ at: farm.farm.createdAt, icon: '🌱', title: 'Exploitation enregistrée : ' + farm.farm.name, sub: [farm.farm.region, farm.farm.country].filter(Boolean).join(', ') });
+  items.sort((a, b) => String(b.at || '').localeCompare(String(a.at || '')));
+  if (!items.length) { root.replaceChildren(el('p', 'empty', 'Aucune activité enregistrée pour le moment.')); return; }
+  const list = el('ul', 'activity');
+  for (const it of items.slice(0, 6)) {
+    const li = el('li');
+    const text = el('div');
+    text.append(el('b', null, it.title), el('span', null, [formatDate(it.at), it.sub].filter(Boolean).join(' · ')));
+    li.append(el('span', 'emoji', it.icon), text);
+    list.append(li);
+  }
+  root.replaceChildren(list);
+}
+
+// --- Registre : export des données du compte et vérification d'un code ---
+const exportButton = document.getElementById('export-data');
+if (exportButton) exportButton.addEventListener('click', () => {
+  if (!piUser) { connectPi(); return; }
+  const farm = typeof farmData !== 'undefined' && farmData ? farmData : {};
+  const academy = typeof academyData !== 'undefined' && academyData ? academyData : {};
+  const data = {
+    application: 'BioStarMondeEden', exporteLe: new Date().toISOString(), compte: '@' + piUser.username,
+    inscriptions: myOrders, exploitation: farm.farm || null, parcelles: farm.plots || [], lots: farm.lots || [],
+    formations: (academy.courses || []).filter((c) => c.enrolled).map((c) => ({ id: c.id, titre: c.name || c.title, modules: (c.modules || []).map((m) => ({ titre: m.title, statut: m.status })) })),
+    attestations: academy.attestations || []
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'biostarmondeeden-' + piUser.username + '.json';
+  document.body.append(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+  toast('Fichier de vos données téléchargé.');
+});
+const verifyForm = document.getElementById('verify-form');
+if (verifyForm) verifyForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const code = $('#verify-code').value.trim().toUpperCase();
+  if (/^ATT-[A-Z0-9]{8}$/.test(code)) location.href = '/attestation.html?code=' + encodeURIComponent(code);
+  else if (/^BSME-[A-Z0-9]{8}$/.test(code)) location.href = '/lot.html?code=' + encodeURIComponent(code);
+  else toast('Code attendu : BSME- ou ATT- suivi de 8 caractères.');
+});
 $('#refresh-mine').addEventListener('click', loadMine);
 $('#refresh-admin').addEventListener('click', () => { loadAdmin(); if (typeof loadAdminAcademy === 'function') loadAdminAcademy(); });
 $('#admin-filter').addEventListener('change', renderAdmin);
