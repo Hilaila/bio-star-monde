@@ -172,8 +172,8 @@ async function processIncomplete() {
   } catch (e) { toast('Paiement précédent à vérifier : ' + e.message); }
 }
 
-// Pi Browser ne répond jamais si l'adresse n'est pas celle d'une application enregistrée dans le Developer Portal :
-// au-delà de ce délai, un message clair remplace l'attente silencieuse.
+// Pi.authenticate ne répond jamais hors du Pi Browser (Chrome, Firefox…) ni sur une adresse non enregistrée
+// dans le Developer Portal : au-delà de ce délai, un message clair remplace l'attente silencieuse.
 const PI_AUTH_TIMEOUT_MS = Number(window.BSME_PI_AUTH_TIMEOUT_MS) || 25000;
 function withTimeout(promise, ms, message) {
   let timer;
@@ -196,7 +196,7 @@ async function connectPi() {
   try {
     const auth = await withTimeout(window.Pi.authenticate(['username', 'payments'], (payment) => {
       if (payment && payment.identifier) { pendingIncomplete = payment; processIncomplete(); }
-    }), PI_AUTH_TIMEOUT_MS, 'Pi Browser ne répond pas. Réessayez dans un instant ; si cela continue, l’adresse de l’application n’est peut-être pas encore enregistrée auprès de Pi.');
+    }), PI_AUTH_TIMEOUT_MS, 'Pi ne répond pas. La connexion Pi fonctionne uniquement dans le Pi Browser : si vous êtes dans Chrome ou un autre navigateur, ouvrez l’application depuis le Pi Browser.');
     piUser = auth.user;
     piAccessToken = auth.accessToken;
     const verified = await api('/api/pi-auth', { accessToken: piAccessToken });
